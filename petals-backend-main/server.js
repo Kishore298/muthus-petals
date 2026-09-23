@@ -52,7 +52,10 @@ async function main() {
   console.log("MongoDB connected");
 }
 
-main().catch((err) => console.log(err));
+main().catch((err) => {
+  console.error("Failed to connect to MongoDB:", err.message);
+  process.exit(1);
+});
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
