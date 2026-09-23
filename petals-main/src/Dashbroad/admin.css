@@ -1,0 +1,50 @@
+/* ========================================
+   PETALS ADMIN – SHARED DESIGN SYSTEM
+   Import this in each dashboard page CSS
+========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #7c3aed;
+  --primary-light: #a78bfa;
+  --primary-dark: #5b21b6;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+
+  --bg-main: #0f0f14;
+  --bg-card: #1a1a24;
+  --bg-sidebar: #12121a;
+  --bg-input: #22222e;
+  --bg-hover: #252533;
+
+  --text-primary: #f1f1f6;
+  --text-secondary: #9898b3;
+  --text-muted: #5c5c78;
+
+  --border: rgba(255,255,255,0.07);
+  --border-focus: rgba(124,58,237,0.5);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 24px rgba(124,58,237,0.25);
+
+  --transition: 0.2s ease;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-main);
+  color: var(--text-primary);
+}

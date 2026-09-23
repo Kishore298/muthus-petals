@@ -1,0 +1,329 @@
+/* =========================
+   PRODUCTS PAGE
+========================= */
+
+* { box-sizing: border-box; }
+
+.products-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 100px 24px 80px;
+  background: var(--bg, #f9fafb);
+  font-family: var(--font-body, 'Inter', sans-serif);
+}
+
+/* =========================
+   HEADER
+========================================= */
+
+.products-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.products-title {
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.products-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+}
+
+/* =========================
+   CATEGORY FILTER
+========================= */
+
+.category-filter-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.category-filter-btn {
+  border: 1px solid #e5e7eb;
+  padding: 10px 24px;
+  border-radius: 50px;
+  background: #ffffff;
+  color: #4b5563;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.category-filter-btn:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+}
+
+.active-category {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+}
+
+.active-category:hover {
+  color: #ffffff;
+}
+
+/* =========================
+   PRODUCT GRID
+========================= */
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* =========================
+   PRODUCT CARD
+========================= */
+
+.product-card {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  opacity: 0;
+  border: 1px solid rgba(0,0,0,0.04);
+  animation: fadeUpCard 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--delay, 0s);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+}
+
+.product-card:active {
+  transform: translateY(-2px);
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.product-image-wrapper {
+  width: 100%;
+  aspect-ratio: 4 / 5; /* Taller elegant portrait for bottles */
+  overflow: hidden;
+  background: #f3f4f6;
+  position: relative;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.06);
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.product-content {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.product-category {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 4px 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  width: fit-content;
+}
+
+.product-name {
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+
+/* =========================
+   PRICE
+========================= */
+
+.product-price-box {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+
+.product-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.product-cut-price {
+  font-size: 14px;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+/* discount badge */
+.product-discount {
+  font-size: 12px;
+  font-weight: 600;
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.view-product-btn {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: transparent;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  transition: all 0.3s ease;
+}
+
+.product-card:hover .view-product-btn {
+  background: #111827;
+  border-color: #111827;
+  color: #ffffff;
+}
+
+/* =========================
+   LOADING / ERROR
+========================= */
+
+.loading-text,
+.error-text {
+  text-align: center;
+  padding: 100px 20px;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes fadeUpCard {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   RESPONSIVE — TABLET
+========================= */
+
+@media (max-width: 900px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+  }
+}
+
+/* =========================
+   RESPONSIVE — MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  .products-page {
+    padding: 80px 16px 50px;
+  }
+
+  .products-title {
+    font-size: 32px;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .product-image-wrapper {
+    aspect-ratio: 1 / 1; /* Squarer on mobile for space */
+  }
+
+  .product-name {
+    font-size: 16px;
+  }
+
+  .product-price {
+    font-size: 16px;
+  }
+  
+  .product-content {
+    padding: 16px;
+  }
+  
+  .category-filter-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
+
+/* =========================
+   RESPONSIVE — SMALL MOBILE
+========================= */
+
+@media (max-width: 400px) {
+  .products-grid {
+    grid-template-columns: 1fr; /* Single column on tiny phones */
+    gap: 16px;
+  }
+  
+  .product-image-wrapper {
+    aspect-ratio: 4 / 3; 
+  }
+}

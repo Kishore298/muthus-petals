@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&family=Inter:wght@300;400;500;600&display=swap');
+
+@font-face{
+    font-family:"monta";
+    src: url("../src/fonts/Station.ttf");
+}
+
+:root {
+  --primary-color: #c084d4;
+  --secondary-color: #e8a0f0;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --bg-color: #ffffff;
+  --bg-subtle: #f9f9f9;
+  --border-color: #eaeaea;
+  --max-width: 1200px;
+  --transition: all 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  position: relative;
+  font-family: 'Inter', "monta", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("./componets/images/33Hn.gif");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.15; /* Adjusted opacity to ensure text readability */
+  z-index: -1; 
+  pointer-events: none; 
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 24px;
+  }
+}

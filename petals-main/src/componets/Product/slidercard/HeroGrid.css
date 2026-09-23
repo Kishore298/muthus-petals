@@ -1,0 +1,89 @@
+/* ─── Wrapper ─── */
+.bn-img-wrap {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  perspective: 1100px;
+  perspective-origin: center center;
+
+  /* fluid height: grows with the column, never collapses */
+  height: 100%;
+  min-height: 320px;
+}
+
+/* ─── Base image ─── */
+.slide-img {
+  position: absolute;
+  inset: 0;
+  width:100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  will-change: transform, opacity;
+}
+
+/* ─────────────────────────────────────────────
+   OUT: tilts and exits to the left
+───────────────────────────────────────────── */
+.slide-img--out {
+  z-index: 1;
+  animation: imgSlideOut 0.65s cubic-bezier(0.55, 0, 0.9, 0.6) forwards;
+}
+
+@keyframes imgSlideOut {
+  0%   { opacity: 1; transform: translateX(0%)    rotateY(0deg)  scale(1);    }
+  100% { opacity: 0; transform: translateX(-115%) rotateY(35deg) scale(0.88); }
+}
+
+/* ─────────────────────────────────────────────
+   IN: flies in from the right with 3D depth
+───────────────────────────────────────────── */
+.slide-img--in {
+  z-index: 2;
+  animation: imgSlideIn 0.65s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes imgSlideIn {
+  0%   { opacity: 0; transform: translateX(100%)  rotateY(-35deg) scale(0.88); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: translateX(0%)    rotateY(0deg)   scale(1);    }
+}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE — image wrapper heights
+───────────────────────────────────────────── */
+
+/* Large desktop */
+@media (min-width: 1280px) {
+  .bn-img-wrap {
+    min-height: 480px;
+  }
+}
+
+/* Desktop / laptop */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .bn-img-wrap {
+    min-height: 420px;
+  }
+}
+
+/* Tablet landscape */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .bn-img-wrap {
+    min-height: 360px;
+  }
+}
+
+/* Mobile — full width single column, fixed height */
+@media (max-width: 767px) {
+  .bn-img-wrap {
+    height: 260px;
+    min-height: unset;
+    border-radius: 12px;
+  }
+
+  .slide-img {
+    border-radius: 12px;
+  }
+}

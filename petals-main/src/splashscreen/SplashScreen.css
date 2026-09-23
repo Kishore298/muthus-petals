@@ -1,0 +1,319 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500&display=swap");
+
+:root {
+  --splash-bg: #fdf4ff;
+  --accent: #a020c0;
+  --accent-2: #c86dd6;
+  --white: #1a0a2e;
+  --card-bg: rgba(160, 32, 192, 0.06);
+}
+
+/* ── Root ── */
+.splash-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--splash-bg);
+  overflow: hidden;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.splash-exit {
+  opacity: 0;
+  transform: scale(1.08);
+  pointer-events: none;
+}
+
+/* ── Ink blobs ── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.25;
+  animation: blobPulse 4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.blob-1 {
+  width: clamp(200px, 50vw, 500px);
+  height: clamp(200px, 50vw, 500px);
+  background: radial-gradient(circle, var(--accent-2), transparent 70%);
+  top: -80px; left: -80px;
+  animation-delay: 0s;
+}
+.blob-2 {
+  width: clamp(160px, 40vw, 400px);
+  height: clamp(160px, 40vw, 400px);
+  background: radial-gradient(circle, var(--accent), transparent 70%);
+  bottom: -60px; right: -60px;
+  animation-delay: 1.5s;
+}
+@keyframes blobPulse {
+  from { transform: scale(1) rotate(0deg);   opacity: 0.20; }
+  to   { transform: scale(1.2) rotate(15deg); opacity: 0.35; }
+}
+
+/* ── Ripple rings ── */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(191, 65, 202, 0.45);
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Desktop ripple sizes */
+.splash-splash .ripple-1 { animation: rippleOut 1.4s 0.10s ease-out forwards; width: clamp(120px, 22vw, 220px); height: clamp(120px, 22vw, 220px); }
+.splash-splash .ripple-2 { animation: rippleOut 1.4s 0.30s ease-out forwards; width: clamp(200px, 36vw, 360px); height: clamp(200px, 36vw, 360px); }
+.splash-splash .ripple-3 { animation: rippleOut 1.4s 0.55s ease-out forwards; width: clamp(280px, 52vw, 520px); height: clamp(280px, 52vw, 520px); }
+.splash-splash .ripple-4 { animation: rippleOut 1.4s 0.80s ease-out forwards; width: clamp(360px, 70vw, 700px); height: clamp(360px, 70vw, 700px); }
+
+@keyframes rippleOut {
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(1);   opacity: 0;   }
+}
+
+/* ── Water drop particles ── */
+.drop {
+  position: absolute;
+  width: clamp(4px, 1vw, 6px);
+  height: clamp(7px, 1.5vw, 10px);
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  left: 50%; top: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.splash-splash .drop {
+  animation: dropFly var(--dur, 0.9s) var(--delay, 0s) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Drops — use smaller offsets on mobile via clamp */
+.drop-1  { --tx: -90px;  --ty: -130px; --dur: 0.85s; --delay: 0.05s; }
+.drop-2  { --tx:  50px;  --ty: -150px; --dur: 0.95s; --delay: 0.08s; }
+.drop-3  { --tx: 110px;  --ty: -100px; --dur: 0.80s; --delay: 0.12s; }
+.drop-4  { --tx: 140px;  --ty:  -40px; --dur: 0.90s; --delay: 0.06s; }
+.drop-5  { --tx: 120px;  --ty:   50px; --dur: 0.75s; --delay: 0.10s; }
+.drop-6  { --tx:  60px;  --ty:  130px; --dur: 0.85s; --delay: 0.14s; }
+.drop-7  { --tx: -20px;  --ty:  160px; --dur: 0.95s; --delay: 0.04s; }
+.drop-8  { --tx:-100px;  --ty:  120px; --dur: 0.80s; --delay: 0.09s; }
+.drop-9  { --tx:-150px;  --ty:   40px; --dur: 0.88s; --delay: 0.07s; }
+.drop-10 { --tx:-130px;  --ty:  -60px; --dur: 0.92s; --delay: 0.11s; }
+.drop-11 { --tx: -40px;  --ty: -170px; --dur: 0.78s; --delay: 0.13s; }
+.drop-12 { --tx:  30px;  --ty: -180px; --dur: 0.83s; --delay: 0.02s; }
+.drop-13 { --tx: 160px;  --ty:  -80px; --dur: 0.70s; --delay: 0.16s; }
+.drop-14 { --tx: 170px;  --ty:   20px; --dur: 0.87s; --delay: 0.03s; }
+.drop-15 { --tx: -60px;  --ty:  170px; --dur: 0.93s; --delay: 0.15s; }
+.drop-16 { --tx:-160px;  --ty:  -20px; --dur: 0.76s; --delay: 0.18s; }
+.drop-17 { --tx:  80px;  --ty:  160px; --dur: 0.89s; --delay: 0.01s; }
+.drop-18 { --tx:-110px;  --ty:  100px; --dur: 0.82s; --delay: 0.17s; }
+
+@keyframes dropFly {
+  0%   { transform: translate(0, 0) scale(1);                    opacity: 1; }
+  60%  { opacity: 0.8; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0.2); opacity: 0; }
+}
+
+/* ── Core card ── */
+.splash-card {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: cardEnter 0.6s 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes cardEnter {
+  from { transform: scale(0.6) translateY(30px); opacity: 0; }
+  to   { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+/* ── Logo wrapper ── */
+.logo-wrap {
+  position: relative;
+  width: clamp(140px, 30vw, 220px);
+  height: clamp(140px, 30vw, 220px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Logo image ── */
+#logo-img {
+  width:  clamp(90px, 20vw, 150px);
+  height: clamp(90px, 20vw, 150px);
+  object-fit: contain;
+  border-radius: 16px;
+  animation: logoPulse 2.5s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%, 100% { filter: drop-shadow(0 0 16px rgba(191, 65, 202, 0.65)) drop-shadow(0 0 40px rgba(160, 92, 187, 0.35)); }
+  50%       { filter: drop-shadow(0 0 32px rgba(191, 65, 202, 1.00)) drop-shadow(0 0 80px rgba(160, 92, 187, 0.60)); }
+}
+
+/* ── Shimmer sweep ── */
+.logo-shimmer {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.logo-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+  animation: shimmerSweep 2.2s 0.5s ease-in-out infinite;
+}
+@keyframes shimmerSweep {
+  from { left: -60%; }
+  to   { left: 160%; }
+}
+
+/* ── Brand name ── */
+.brand-name {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(22px, 6vw, 36px);
+  color: var(--white);
+  letter-spacing: clamp(2px, 1vw, 5px);
+  margin: 6px 0 0;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(191, 65, 202, 0.6);
+  animation: fadeSlideUp 0.6s 0.3s ease both;
+}
+
+/* ── Tagline ── */
+.tagline {
+  font-family: "Outfit", sans-serif;
+  font-size: clamp(9px, 2.5vw, 13px);
+  font-weight: 300;
+  color: rgba(160, 32, 192, 0.72);
+  letter-spacing: clamp(2px, 1vw, 4px);
+  text-transform: uppercase;
+  text-align: center;
+  animation: fadeSlideUp 0.6s 0.5s ease both;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Progress bar ── */
+.progress-bar {
+  width: clamp(100px, 30vw, 160px);
+  height: 2px;
+  background: rgba(160, 32, 192, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 14px;
+  animation: fadeSlideUp 0.6s 0.7s ease both;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-2), var(--accent));
+  border-radius: 2px;
+  box-shadow: 0 0 10px var(--accent);
+  animation: progressGrow 2.2s 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes progressGrow {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+════════════════════════════════════════ */
+
+/* ── Small phones (≤ 380px) ── */
+@media (max-width: 380px) {
+  #logo-img   { width: 80px;  height: 80px; }
+  .logo-wrap  { width: 120px; height: 120px; }
+  .brand-name { font-size: 20px; letter-spacing: 2px; }
+  .tagline    { font-size: 8px;  letter-spacing: 2px; }
+  .progress-bar { width: 90px; }
+
+  .drop-1  { --tx: -50px; --ty: -80px;  }
+  .drop-2  { --tx:  28px; --ty: -90px;  }
+  .drop-3  { --tx:  65px; --ty: -60px;  }
+  .drop-4  { --tx:  80px; --ty: -25px;  }
+  .drop-5  { --tx:  70px; --ty:  30px;  }
+  .drop-6  { --tx:  35px; --ty:  80px;  }
+  .drop-7  { --tx: -12px; --ty:  95px;  }
+  .drop-8  { --tx: -60px; --ty:  75px;  }
+  .drop-9  { --tx: -90px; --ty:  25px;  }
+  .drop-10 { --tx: -80px; --ty: -38px;  }
+  .drop-11 { --tx: -24px; --ty: -105px; }
+  .drop-12 { --tx:  18px; --ty: -110px; }
+  .drop-13 { --tx:  95px; --ty: -48px;  }
+  .drop-14 { --tx: 100px; --ty:  12px;  }
+  .drop-15 { --tx: -36px; --ty: 105px;  }
+  .drop-16 { --tx: -96px; --ty: -12px;  }
+  .drop-17 { --tx:  48px; --ty:  96px;  }
+  .drop-18 { --tx: -66px; --ty:  60px;  }
+}
+
+/* ── Phones (381px – 640px) ── */
+@media (min-width: 381px) and (max-width: 640px) {
+  #logo-img   { width: 100px; height: 100px; }
+  .logo-wrap  { width: 150px; height: 150px; }
+  .brand-name { font-size: 24px; letter-spacing: 3px; }
+  .tagline    { font-size: 10px; letter-spacing: 3px; }
+  .progress-bar { width: 120px; }
+
+  .drop-1  { --tx: -65px; --ty: -100px; }
+  .drop-2  { --tx:  35px; --ty: -115px; }
+  .drop-3  { --tx:  80px; --ty:  -75px; }
+  .drop-4  { --tx: 100px; --ty:  -30px; }
+  .drop-5  { --tx:  85px; --ty:   38px; }
+  .drop-6  { --tx:  45px; --ty:  100px; }
+  .drop-7  { --tx: -15px; --ty:  120px; }
+  .drop-8  { --tx: -75px; --ty:   90px; }
+  .drop-9  { --tx:-110px; --ty:   30px; }
+  .drop-10 { --tx: -95px; --ty:  -45px; }
+  .drop-11 { --tx: -30px; --ty: -130px; }
+  .drop-12 { --tx:  22px; --ty: -140px; }
+  .drop-13 { --tx: 118px; --ty:  -60px; }
+  .drop-14 { --tx: 125px; --ty:   15px; }
+  .drop-15 { --tx: -45px; --ty:  130px; }
+  .drop-16 { --tx:-118px; --ty:  -15px; }
+  .drop-17 { --tx:  60px; --ty:  120px; }
+  .drop-18 { --tx: -82px; --ty:   75px; }
+}
+
+/* ── Tablets (641px – 1024px) ── */
+@media (min-width: 641px) and (max-width: 1024px) {
+  #logo-img   { width: 120px; height: 120px; }
+  .logo-wrap  { width: 180px; height: 180px; }
+  .brand-name { font-size: 30px; }
+  .tagline    { font-size: 11px; }
+  .progress-bar { width: 140px; }
+}
+
+/* ── Large desktops (≥ 1440px) ── */
+@media (min-width: 1440px) {
+  #logo-img   { width: 160px; height: 160px; }
+  .logo-wrap  { width: 240px; height: 240px; }
+  .brand-name { font-size: 42px; letter-spacing: 6px; }
+  .tagline    { font-size: 14px; letter-spacing: 5px; }
+  .progress-bar { width: 180px; }
+}
+
+/* ── Landscape phones ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .splash-card { gap: 2px; }
+  #logo-img    { width: 70px;  height: 70px;  }
+  .logo-wrap   { width: 100px; height: 100px; }
+  .brand-name  { font-size: 20px; margin-top: 2px; }
+  .tagline     { font-size: 9px; }
+  .progress-bar { margin-top: 8px; }
+  .blob-1, .blob-2 { display: none; } /* simplify on tiny landscape */
+}

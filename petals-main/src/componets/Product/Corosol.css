@@ -1,0 +1,59 @@
+.img-mains {
+    display: flex;
+    overflow-x: scroll;
+    white-space: nowrap; 
+    padding: 0px;
+
+    margin-left: -10px; 
+    scroll-behavior: smooth; 
+    margin-top: -20px; 
+    position: relative; 
+    font-family: 'mont';
+     letter-spacing: 3px;
+  }
+  .cor-name{
+    font-size: 24px;
+    justify-content: center;
+    color: rgb(226, 58, 207);
+    font-weight: 400;
+    font-family: cursive;
+  }
+  
+  .products {
+    position: relative; 
+    display: inline-block;
+    flex: none;
+    text-align: center;
+  }
+  
+  .stackimgs {
+    width: 1000px;
+    height: auto;
+
+    margin: 0 auto;
+  
+  }
+  
+
+  .header{
+    text-decoration: underline;
+    margin-top: 30px;
+  }
+  .headers{
+    border: 2px solid white;
+    margin-top: 20px;
+  }
+  
+ 
+  @media (max-width: 768px) {
+    .stackimgs {
+      width: 420px;
+    }
+    .links{
+      text-decoration: none;
+    }
+    .header{
+      text-decoration: none;
+    }
+  }
+  

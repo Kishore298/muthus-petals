@@ -1,0 +1,488 @@
+/* ===== SHIPPING PAGE REDESIGN ===== */
+
+.sp-page {
+  min-height: 100vh;
+  padding: 30px 20px 60px;
+  background: #f5f3ff;
+  font-family: "Poppins", sans-serif;
+}
+
+.sp-wrap { width: 100%; max-width: 860px; margin: 0 auto; }
+
+.sp-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #EEEDFE; color: #3C3489;
+  font-size: 12px; font-weight: 600;
+  padding: 5px 14px; border-radius: 99px;
+  margin-bottom: 12px; letter-spacing: .4px;
+}
+
+.sp-title { font-size: clamp(22px, 4vw, 30px); font-weight: 700; color: #111827; margin-bottom: 4px; }
+.sp-sub   { font-size: 14px; color: #6b7280; margin-bottom: 28px; }
+
+/* Steps */
+.sp-steps { display: flex; align-items: center; margin-bottom: 32px; }
+.sp-step  { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+.sp-step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+}
+.sp-step.done .sp-step-num, .sp-step.active .sp-step-num { background: #7c3aed; color: #fff; }
+.sp-step.active .sp-step-num { outline: 3px solid #EEEDFE; }
+.sp-step.idle .sp-step-num   { background: #f3f4f6; color: #9ca3af; border: 1.5px solid #d1d5db; }
+.sp-step.done span, .sp-step.active span { color: #111827; }
+.sp-step.idle span { color: #9ca3af; }
+.sp-line      { flex: 1; height: 2px; background: #e5e7eb; margin: 0 10px; }
+.sp-line.done { background: #7c3aed; }
+
+/* Two-column body */
+.sp-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Form card */
+.sp-form-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #f0eeff;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(124,58,237,.06);
+}
+
+.sp-section-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 1.2px; color: #7c3aed;
+  text-transform: uppercase; margin-bottom: 16px;
+}
+
+.sp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.sp-full { grid-column: 1 / -1; }
+
+.sp-field { display: flex; flex-direction: column; gap: 5px; }
+.sp-field label { font-size: 12px; font-weight: 600; color: #374151; }
+
+.sp-input {
+  height: 48px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  outline: none;
+  transition: .2s;
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+}
+.sp-input:focus      { border-color: #7c3aed; background: #fff; box-shadow: 0 0 0 3px rgba(124,58,237,.12); }
+.sp-input::placeholder { color: #d1d5db; }
+
+.sp-divider { height: 1px; background: #f3f4f6; margin: 22px 0; }
+
+.sp-btn {
+  width: 100%; height: 54px;
+  border: none; border-radius: 14px;
+  background: #7c3aed; color: #fff;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; margin-top: 20px;
+  transition: .2s; font-family: "Poppins", sans-serif;
+}
+.sp-btn:hover { background: #6d28d9; transform: translateY(-2px); }
+
+/* Summary */
+.sp-summary {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #f0eeff;
+  padding: 24px;
+  position: sticky;
+  top: 100px;
+  box-shadow: 0 4px 20px rgba(124,58,237,.06);
+}
+.sp-summary-title {
+  font-size: 15px; font-weight: 700; color: #111827;
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 18px;
+}
+.sp-summary-title span { font-size: 12px; font-weight: 500; color: #7c3aed; cursor: pointer; }
+
+.sp-product { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; }
+.sp-product-img {
+  width: 52px; height: 52px; border-radius: 10px;
+  background: #EEEDFE; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.sp-product-info p:first-child { font-size: 13px; font-weight: 600; color: #111827; }
+.sp-product-info p:last-child  { font-size: 12px; color: #6b7280; margin-top: 2px; }
+.sp-product-price { margin-left: auto; font-size: 13px; font-weight: 700; color: #111827; }
+
+.sp-row       { display: flex; justify-content: space-between; font-size: 13px; color: #6b7280; margin-bottom: 8px; }
+.sp-row.total { font-size: 15px; font-weight: 700; color: #111827; border-top: 1px solid #f3f4f6; padding-top: 12px; }
+.sp-row.total span:last-child { color: #7c3aed; }
+.sp-free      { color: #16a34a; font-weight: 600; }
+.sp-secure    { font-size: 11px; color: #9ca3af; margin-top: 16px; text-align: center; }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .sp-body  { grid-template-columns: 1fr; }
+  .sp-summary { order: -1; position: static; }
+  .sp-grid  { grid-template-columns: 1fr; }
+  .sp-steps { display: none; }
+  .sp-page  { padding: 30px 16px 40px; }
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ===== CART PAGE REDESIGN ===== */
+
+.ct-page {
+  min-height: 100vh;
+  padding: 30px 20px 60px;
+  background: #f5f3ff;
+  font-family: "Poppins", sans-serif;
+}
+
+.ct-wrap { max-width: 1000px; margin: 0 auto; }
+
+.ct-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #EEEDFE; color: #3C3489;
+  font-size: 12px; font-weight: 600;
+  padding: 5px 14px; border-radius: 99px;
+  margin-bottom: 12px; letter-spacing: .4px;
+}
+
+.ct-title { font-size: clamp(22px, 4vw, 30px); font-weight: 700; color: #111827; margin-bottom: 4px; }
+.ct-sub   { font-size: 14px; color: #6b7280; margin-bottom: 28px; }
+
+.ct-body {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.ct-items { display: flex; flex-direction: column; gap: 16px; }
+
+/* Cart card */
+.ct-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #f0eeff;
+  padding: 18px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, .05);
+  transition: .2s;
+}
+.ct-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, .1);
+}
+
+.ct-img {
+  width: 96px; height: 96px;
+  border-radius: 14px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #EEEDFE;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+}
+
+.ct-info { flex: 1; min-width: 0; }
+
+.ct-name {
+  font-size: 15px; font-weight: 700; color: #111827;
+  margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.ct-meta {
+  font-size: 12px; color: #9ca3af;
+  margin-bottom: 10px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.ct-meta span {
+  background: #f3f0ff; color: #6d28d9;
+  padding: 2px 8px; border-radius: 99px; font-weight: 500;
+}
+
+.ct-price { font-size: 16px; font-weight: 700; color: #7c3aed; margin-bottom: 12px; }
+
+.ct-qty-row { display: flex; align-items: center; gap: 10px; }
+
+.ct-qty-btn {
+  width: 32px; height: 32px;
+  border: 1.5px solid #e5e7eb; border-radius: 8px;
+  background: #fff; color: #111827;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: .15s;
+}
+.ct-qty-btn:hover { border-color: #7c3aed; color: #7c3aed; background: #f3f0ff; }
+
+.ct-qty-val { font-size: 14px; font-weight: 700; color: #111827; min-width: 20px; text-align: center; }
+.ct-qty-total { font-size: 12px; color: #9ca3af; margin-left: 6px; }
+
+.ct-remove {
+  margin-left: auto; align-self: flex-start;
+  width: 32px; height: 32px;
+  border: none; border-radius: 8px;
+  background: #fff5f5; color: #ef4444;
+  cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: .15s; flex-shrink: 0;
+}
+.ct-remove:hover { background: #fee2e2; }
+
+/* Summary sidebar */
+.ct-side { display: flex; flex-direction: column; gap: 16px; }
+
+.ct-summary {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #f0eeff;
+  padding: 24px;
+  position: sticky; top: 100px;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, .06);
+}
+.ct-summary-title { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 18px; }
+
+.ct-sum-row { display: flex; justify-content: space-between; font-size: 13px; color: #6b7280; margin-bottom: 10px; }
+.ct-sum-row.total {
+  font-size: 16px; font-weight: 700; color: #111827;
+  border-top: 1px solid #f3f4f6; padding-top: 14px; margin-top: 4px;
+}
+.ct-sum-row.total span:last-child { color: #7c3aed; }
+.ct-free { color: #16a34a; font-weight: 600; }
+.ct-discount { color: #16a34a; }
+
+.ct-promo { display: flex; gap: 8px; margin-top: 14px; }
+.ct-promo input {
+  flex: 1; height: 40px;
+  border: 1.5px solid #e5e7eb; border-radius: 10px;
+  padding: 0 12px; font-size: 13px;
+  outline: none; font-family: "Poppins", sans-serif;
+  color: #111827; background: #fafafa;
+}
+.ct-promo input:focus { border-color: #7c3aed; }
+.ct-promo button {
+  height: 40px; padding: 0 14px;
+  border: none; border-radius: 10px;
+  background: #7c3aed; color: #fff;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  font-family: "Poppins", sans-serif; transition: .2s;
+}
+.ct-promo button:hover { background: #6d28d9; }
+
+.ct-checkout-btn {
+  width: 100%; height: 52px;
+  border: none; border-radius: 14px;
+  background: #7c3aed; color: #fff;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; margin-top: 18px; transition: .2s;
+  font-family: "Poppins", sans-serif;
+}
+.ct-checkout-btn:hover { background: #6d28d9; transform: translateY(-2px); }
+
+.ct-continue {
+  width: 100%; height: 44px;
+  border: 1.5px solid #e5e7eb; border-radius: 14px;
+  background: #fff; color: #6b7280;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; margin-top: 10px; transition: .2s;
+  font-family: "Poppins", sans-serif;
+}
+.ct-continue:hover { border-color: #7c3aed; color: #7c3aed; }
+
+.ct-secure { font-size: 11px; color: #9ca3af; text-align: center; margin-top: 14px; }
+
+/* Empty state */
+.ct-empty {
+  text-align: center; padding: 60px 20px;
+  background: #fff; border-radius: 20px; border: 1px solid #f0eeff;
+}
+.ct-empty-icon { font-size: 52px; margin-bottom: 12px; }
+.ct-empty p { font-size: 15px; color: #6b7280; margin-bottom: 20px; }
+.ct-empty button {
+  padding: 12px 28px; border: none; border-radius: 12px;
+  background: #7c3aed; color: #fff;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .ct-page   { padding: 30px 12px 40px; }
+  .ct-body   { grid-template-columns: 1fr; }
+  .ct-side   { order: -1; }
+  .ct-summary { position: static; }
+  .ct-img    { width: 78px; height: 78px; font-size: 28px; }
+  .ct-name   { font-size: 14px; }
+}
+
+@media (max-width: 400px) {
+  .ct-card   { padding: 14px 12px; gap: 12px; }
+  .ct-price  { font-size: 14px; }
+  .ct-checkout-btn { font-size: 13px; }
+}
+
+
+.ct-meta-ship {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  width: 100%;
+}
+
+.ct-ship-district {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.ct-ship-cost {
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.ct-ship-note {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: -4px 0 10px;
+  line-height: 1.5;
+}
+
+.ct-ship-plus {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+}
+
+
+
+
+/* ─────────────────────────────────────────
+   ADD THESE RULES TO YOUR cart.css
+   (Shipping page — mandatory field validation)
+───────────────────────────────────────── */
+
+/* ── Required star ── */
+.sp-required-star {
+  color: #e03e3e;
+  font-weight: 700;
+  margin-left: 1px;
+}
+
+/* ── Small legend beside section label ── */
+.sp-legend {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #9ca3af;
+  margin-left: 6px;
+}
+
+/* ── Input wrapper (for icon positioning) ── */
+.sp-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* ── Input states ── */
+.sp-input {
+  /* keep your existing styles; these add/override only the border & bg */
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sp-input-error {
+  border-color: #e03e3e !important;
+  background: #fff8f8 !important;
+  box-shadow: 0 0 0 3px rgba(224, 62, 62, 0.12) !important;
+}
+
+.sp-input-valid {
+  border-color: #22c55e !important;
+  background: #f0fff4 !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.10) !important;
+}
+
+/* ── Icon badges inside the input ── */
+.sp-field-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.sp-field-ok  { color: #22c55e; }
+.sp-field-err {
+  color: #fff;
+  background: #e03e3e;
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+}
+
+/* ── Per-field error message ── */
+.sp-error-msg {
+  margin: 4px 0 0;
+  font-size: 0.76rem;
+  color: #e03e3e;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: errSlideIn 0.2s ease both;
+}
+.sp-error-msg::before {
+  content: "⚠";
+  font-size: 0.72rem;
+}
+@keyframes errSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Global error banner (top of form, after submit attempt) ── */
+.sp-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fff2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #b91c1c;
+  margin-bottom: 18px;
+  animation: errSlideIn 0.25s ease both;
+}
+
+/* ── Make the submit button look disabled when errors exist ── */
+/* (optional — purely visual since we still let user click to see errors) */
+.sp-btn:focus-visible {
+  outline: 3px solid rgba(160, 32, 192, 0.5);
+  outline-offset: 2px;
+}

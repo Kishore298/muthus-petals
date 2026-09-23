@@ -1,0 +1,123 @@
+/* ── Page Wrapper ── */
+.main-containers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* ── Headings ── */
+.contacth1 {
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  margin-bottom: 6px;
+}
+
+/* ── Card ── */
+.contact-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 18px 24px;
+  margin-top: 14px;
+  text-decoration: none;
+  color: #000000;
+  background: #df7cf095;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  font-family: 'Times New Roman', Times, serif;
+  font-size: clamp(16px, 2vw, 22px);
+  box-sizing: border-box;
+
+  /* animation base - hidden until fired */
+  opacity: 0;
+  animation-duration: 0.65s;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* hover transition */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ── Hover ── */
+.contact-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+}
+
+/* ── Icons ── */
+.contact-card svg {
+  width: clamp(28px, 4vw, 38px);
+  height: clamp(28px, 4vw, 38px);
+  flex-shrink: 0;
+}
+
+/* ── Keyframes ── */
+@keyframes slideFromLeft {
+  from { opacity: 0; transform: translateX(-150px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideFromRight {
+  from { opacity: 0; transform: translateX(150px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/*
+  Using nth-of-type (NOT nth-child).
+  Reason: h1 and h5 sit above the cards as siblings inside
+  .main-containers, so nth-child(1) = h1, nth-child(2) = h5,
+  nth-child(3) = WhatsApp... which makes Facebook & YouTube
+  have no animation rule at all and stay invisible.
+  nth-of-type counts only <a> tags, so 1=WhatsApp 2=Instagram
+  3=Facebook 4=YouTube — exactly correct.
+*/
+
+/* WhatsApp - left to center */
+.contact-card:nth-of-type(1) {
+  animation-name: slideFromLeft;
+  animation-delay: 0.10s;
+}
+
+/* Instagram - right to center */
+.contact-card:nth-of-type(2) {
+  animation-name: slideFromRight;
+  animation-delay: 0.28s;
+}
+
+/* Facebook - left to center */
+.contact-card:nth-of-type(3) {
+  animation-name: slideFromLeft;
+  animation-delay: 0.46s;
+}
+
+/* YouTube - right to center */
+.contact-card:nth-of-type(4) {
+  animation-name: slideFromRight;
+  animation-delay: 0.64s;
+}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .main-containers {
+    padding: 16px 12px;
+  }
+
+  .contact-card {
+    padding: 14px 16px;
+    margin-top: 10px;
+    border-radius: 14px;
+    font-size: 17px;
+  }
+
+  .contact-card svg {
+    width: 30px;
+    height: 30px;
+  }
+}

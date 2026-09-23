@@ -1,0 +1,148 @@
+/* Create Products Page */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: 'Inter', sans-serif; background: #0f0f14; color: #f1f1f6; }
+
+.cp-page {
+  min-height: 100vh;
+  background: #0f0f14;
+  padding: 40px 24px;
+}
+
+.cp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cp-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #f1f1f6;
+}
+
+.cp-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 9px 16px;
+  color: #9898b3;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.cp-back-link:hover { background: rgba(255,255,255,0.1); color: #f1f1f6; }
+
+.cp-form-card {
+  background: #1a1a24;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 40px 36px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.cp-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.cp-form-field { display: flex; flex-direction: column; gap: 8px; }
+.cp-form-field.full { grid-column: 1 / -1; }
+
+.cp-form-field label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #9898b3;
+}
+
+.cp-input,
+.cp-select {
+  height: 48px;
+  background: #22222e;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: #f1f1f6;
+  outline: none;
+  transition: all 0.2s;
+  width: 100%;
+  font-family: inherit;
+}
+
+.cp-input::placeholder { color: #5c5c78; }
+.cp-input:focus, .cp-select:focus {
+  border-color: rgba(124,58,237,0.5);
+  background: #252535;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+}
+
+.cp-select { appearance: none; cursor: pointer; }
+.cp-select option { background: #1a1a24; }
+
+.cp-file-input {
+  background: #22222e;
+  border: 1.5px dashed rgba(124,58,237,0.35);
+  border-radius: 10px;
+  padding: 18px 14px;
+  font-size: 14px;
+  color: #9898b3;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+}
+.cp-file-input:hover { border-color: rgba(124,58,237,0.6); background: #252535; }
+
+.cp-preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.cp-preview-thumb {
+  width: 72px; height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid rgba(124,58,237,0.35);
+}
+
+.cp-submit-btn {
+  height: 50px;
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.25s;
+  width: 100%;
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+}
+.cp-submit-btn:hover {
+  background: linear-gradient(135deg, #6d28d9, #4c1d95);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(124,58,237,0.4);
+}
+.cp-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+@media (max-width: 640px) {
+  .cp-page { padding: 24px 16px; }
+  .cp-form-card { padding: 24px 18px; }
+  .cp-form-grid { grid-template-columns: 1fr; }
+}
