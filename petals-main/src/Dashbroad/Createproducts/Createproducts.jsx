@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./toastify.css";
+import AdminNavbar from "../AdminNavbar";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -70,11 +71,11 @@ const Createproducts = () => {
 
   return (
     <>
+      <AdminNavbar />
       <ToastContainer theme="dark" />
       <div className="cp-page">
         <div className="cp-header">
           <h1> Create Product</h1>
-          <Link to="/dashbroad" className="cp-back-link">← Dashboard</Link>
         </div>
 
         <div className="cp-form-card">

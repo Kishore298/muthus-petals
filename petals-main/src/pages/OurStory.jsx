@@ -6,7 +6,7 @@ const OurStory = () => {
   return (
     <>
       
-      <div style={{ paddingTop: '80px', minHeight: 'calc(100vh - 300px)' }}>
+      <div style={{ minHeight: 'calc(100vh - 300px)' }}>
         <About />
       </div>
       

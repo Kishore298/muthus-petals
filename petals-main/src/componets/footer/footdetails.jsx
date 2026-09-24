@@ -93,7 +93,7 @@ const Footer = () => {
           <h3>Information</h3>
           <ul>
             <li><Link to="/about">About Us</Link></li>
-            <li><Link to="/policy">Policy & Return</Link></li>
+            <li><Link to="/privacy-policy">Privacy Policy & Return</Link></li>
             <li><Link to="/shipping">Shipping Policy</Link></li>
             <li><Link to="/contact">India | Chennai</Link></li>
           </ul>

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import './showorders.css';
+import AdminNavbar from '../AdminNavbar';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -18,6 +21,9 @@ export const Showallorders = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  
+  // Modal state
+  const [deletingId, setDeletingId] = useState(null);
 
   const fetchOrders = async () => {
     try {
@@ -52,19 +58,33 @@ export const Showallorders = () => {
       );
       if (res.data && res.data.success) {
         setOrders(orders.map(o => o._id === id ? { ...o, orderStatus: newStatus } : o));
+        toast.success("Order status updated!");
+      } else {
+        toast.error("Failed to update order status.");
       }
-    } catch (err) { console.error("Error updating status:", err); }
+    } catch (err) {
+      console.error("Error updating status:", err);
+      toast.error("Failed to update order status.");
+    }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this order?")) return;
+  const handleDelete = async () => {
+    if (!deletingId) return;
     try {
       const token = localStorage.getItem('tokens');
-      const res = await axios.delete(`${BASE_URL}/api/v1/admin/order/${id}`, {
+      const res = await axios.delete(`${BASE_URL}/api/v1/admin/order/${deletingId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.data && res.data.success) setOrders(orders.filter(o => o._id !== id));
-    } catch (err) { console.error("Error deleting order:", err); }
+      if (res.data && res.data.success) {
+        setOrders(orders.filter(o => o._id !== deletingId));
+        toast.success("Order deleted successfully!");
+      }
+    } catch (err) {
+      console.error("Error deleting order:", err);
+      toast.error("Failed to delete order.");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const filtered = orders.filter(order => {
@@ -85,20 +105,25 @@ export const Showallorders = () => {
 
   if (loading) return <div className="so-state">Loading orders…</div>;
   if (error)   return (
+    <>
+    <AdminNavbar />
     <div className="so-page">
       <div className="so-header">
         <h1>📋 Orders</h1>
-        <Link to="/dashbroad" className="so-back-link">← Dashboard</Link>
       </div>
       <div className="so-state">{error}</div>
     </div>
+    </>
   );
 
   return (
+    <>
+    <ToastContainer theme="dark" />
+    <AdminNavbar />
     <div className="so-page">
+      <div style={{ maxWidth: '850px', margin: '0 auto', width: '100%' }}>
       <div className="so-header">
         <h1>📋 Order Management</h1>
-        <Link to="/dashbroad" className="so-back-link">← Dashboard</Link>
       </div>
 
       {/* Stats */}
@@ -230,7 +255,7 @@ export const Showallorders = () => {
                     <option value="Shipped">Shipped</option>
                     <option value="Delivered">Delivered</option>
                   </select>
-                  <button className="so-del-btn" onClick={() => handleDelete(order._id)}>
+                  <button className="so-del-btn" onClick={() => setDeletingId(order._id)}>
                     Delete
                   </button>
                 </div>
@@ -239,7 +264,22 @@ export const Showallorders = () => {
           ))}
         </div>
       )}
+
+      {deletingId && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: '#1a1a24', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '32px', width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+            <h3 style={{ color: '#f1f1f6', fontSize: '20px', marginBottom: '16px', marginTop: 0 }}>Delete Order</h3>
+            <p style={{ color: '#9898b3', fontSize: '14px', marginBottom: '24px' }}>Are you sure you want to delete this order? This action cannot be undone.</p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button onClick={() => setDeletingId(null)} style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.05)', color: '#9898b3', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+              <button onClick={handleDelete} style={{ padding: '10px 24px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
     </div>
+    </>
   );
 };
 

@@ -297,9 +297,9 @@ export default function Navbar({ cartCount = 0 }) {
               <IconAccount />
             </Link>
             {isLoggedIn ? (
-              <button onClick={handleLogout} className="nav-login-btn">
-                Logout
-              </button>
+              <Link to="/dashboard" className="nav-login-btn">
+                Dashboard
+              </Link>
             ) : (
               <Link to="/login" className="nav-login-btn">
                 Login
@@ -358,10 +358,10 @@ export default function Navbar({ cartCount = 0 }) {
                 <span>Account</span>
               </Link>
               {isLoggedIn ? (
-                <button className="drawer-foot-btn" onClick={() => { handleLogout(); close(); }} aria-label="Logout" style={{ background: 'none', border: '1px solid var(--c-border)', cursor: 'pointer' }}>
+                <Link to="/dashboard" className="drawer-foot-btn" onClick={close} aria-label="Dashboard" style={{ background: 'none', border: '1px solid var(--c-border)' }}>
                   <IconAccount />
-                  <span>Logout</span>
-                </button>
+                  <span>Dashboard</span>
+                </Link>
               ) : (
                 <Link to="/login" className="drawer-foot-btn" onClick={close} aria-label="Login">
                   <IconAccount />

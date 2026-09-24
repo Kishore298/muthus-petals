@@ -13,6 +13,7 @@ body {
   min-height: 100vh;
   background: #0f0f14;
   padding: 40px 24px;
+  width: 100%;
 }
 
 /* Header */
@@ -87,7 +88,7 @@ body {
 /* Grid */
 .dash-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   max-width: 1100px;
   margin: 0 auto;

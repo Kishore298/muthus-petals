@@ -1,6 +1,7 @@
 import React from 'react';
 import "./Dashord.css";
 import { Link } from 'react-router-dom';
+import AdminNavbar from './AdminNavbar';
 
 const MENU_ITEMS = [
   {
@@ -22,22 +23,15 @@ const MENU_ITEMS = [
 
 const Dashbroad = () => {
   return (
-    <div className="dash-page">
-      {/* Top bar */}
-      <div className="dash-topbar">
-        <div className="dash-logo">
-          <div className="dash-logo-icon"></div>
-          <div>
-            <h1>Petals Admin</h1>
-            <span>Store Management Dashboard</span>
-          </div>
+    <>
+      <AdminNavbar />
+      <div className="dash-page">
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '16px' }}>
+          <svg style={{ marginRight: '8px', color: '#5c5c78' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+          <p className="dash-section-title" style={{ margin: 0 }}>Quick Actions</p>
         </div>
-        <Link to="/" className="dash-home-link">
-          ← Back to Store
-        </Link>
-      </div>
-
-      <p className="dash-section-title">Quick Actions</p>
 
       {/* Cards grid */}
       <div className="dash-grid">
@@ -54,7 +48,8 @@ const Dashbroad = () => {
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

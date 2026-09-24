@@ -66,8 +66,6 @@ export const getTestimonail = async(req,res)=>{
 }
 
 export const deleteTestimonail = async(req,res)=>{
-
-
     try {
         const { id } = req.params;
         const testimonial = await testimonialModel.findByIdAndDelete(id);
@@ -78,5 +76,18 @@ export const deleteTestimonail = async(req,res)=>{
       } catch (err) {
         res.status(500).json({ message: "Server error" });
       }
-  
+}
+
+export const updateTestimonial = async(req,res)=>{
+    try {
+        const { id } = req.params;
+        const { name, review } = req.body;
+        const testimonial = await testimonialModel.findByIdAndUpdate(id, { name, review }, { new: true });
+        if (!testimonial) {
+            return res.status(404).json({ message: "Testimonial not found" });
+        }
+        res.status(200).json({ success: 'true', message: "Testimonial updated successfully", testimonial });
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
 }

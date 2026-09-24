@@ -1,9 +1,6 @@
-
 import productModel from '../model/Product.js';
 import ApiFeatures from "../utils/apiFeatures.js";
-
 import Product from '../model/Product.js';
-
 
 export const newProduct = async (req, res) => {
   try {
@@ -38,8 +35,6 @@ export const newProduct = async (req, res) => {
   }
 };
 
-
-
 export const getproducts = async (req, res) => {
   try {
     const resultsPerPage = 12;
@@ -55,7 +50,6 @@ export const getproducts = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 export const singleproduct = async (req, res, next) => {
   try {
@@ -125,8 +119,6 @@ export const singleproductupdate = async (req, res) => {
 }
 
 export const deleteproduct = async (req, res, next) => {
-
-
   let product = await productModel.findByIdAndDelete(req.params.id)
 
   if (!product) {
@@ -142,8 +134,6 @@ export const deleteproduct = async (req, res, next) => {
   })
 
 }
-
-
 
 // Reorder images for a product
 export const reorderProductImages = async (req, res) => {

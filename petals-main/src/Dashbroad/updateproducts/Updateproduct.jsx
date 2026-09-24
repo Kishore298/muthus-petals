@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,7 +11,7 @@ const S = {
   page: { minHeight: '100vh', background: '#0f0f14', padding: '40px 24px', fontFamily: "'Inter',sans-serif", color: '#f1f1f6' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 32 },
   h1: { fontSize: 24, fontWeight: 800, color: '#f1f1f6', margin: 0 },
-  backLink: { display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '9px 16px', color: '#9898b3', fontSize: 13, fontWeight: 500, textDecoration: 'none' },
+  backLink: { display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '9px 16px', color: '#9898b3', fontSize: 13, fontWeight: 500, cursor: 'pointer', border: 'none' },
   card: { background: '#1a1a24', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '36px 32px', maxWidth: 760, margin: '0 auto' },
   grid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   full: { gridColumn: '1 / -1' },
@@ -27,9 +27,7 @@ const S = {
   submitBtn: { height: 50, background: 'linear-gradient(135deg,#7c3aed,#5b21b6)', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, color: '#fff', cursor: 'pointer', width: '100%', marginTop: 8, letterSpacing: '0.3px', transition: 'all 0.25s' },
 };
 
-const Updateproducts = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+const Updateproducts = ({ productId, onClose, onSuccess }) => {
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -47,6 +45,29 @@ const Updateproducts = () => {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
 
+  // Drag and drop refs for reordering existing images
+  const dragItem = React.useRef(null);
+  const dragOverItem = React.useRef(null);
+
+  const handleDragStart = (e, index) => {
+    dragItem.current = index;
+  };
+
+  const handleDragEnter = (e, index) => {
+    dragOverItem.current = index;
+    const copyImages = [...existingImages];
+    const dragContent = copyImages[dragItem.current];
+    copyImages.splice(dragItem.current, 1);
+    copyImages.splice(dragOverItem.current, 0, dragContent);
+    dragItem.current = dragOverItem.current;
+    setExistingImages(copyImages);
+  };
+
+  const handleDragEnd = () => {
+    dragItem.current = null;
+    dragOverItem.current = null;
+  };
+
   const removeExistingImage = (idx) => {
     setExistingImages((prev) => prev.filter((_, i) => i !== idx));
   };
@@ -56,7 +77,7 @@ const Updateproducts = () => {
     const fetchProduct = async () => {
       try {
         const token = localStorage.getItem("tokens");
-        const res = await axios.get(`${BASE_URL}/api/v1/products/${id}`, {
+        const res = await axios.get(`${BASE_URL}/api/v1/products/${productId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const p = res.data.product;
@@ -79,7 +100,7 @@ const Updateproducts = () => {
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [productId]);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -117,7 +138,7 @@ const Updateproducts = () => {
 
     try {
       const res = await axios.put(
-        `${BASE_URL}/api/v1/products/update/${id}`,
+        `${BASE_URL}/api/v1/products/update/${productId}`,
         formData,
         {
           headers: {
@@ -129,7 +150,8 @@ const Updateproducts = () => {
 
       if (res.data.success) {
         toast.success("Product updated successfully!");
-        setTimeout(() => navigate("/showallproducts"), 1200);
+        if (onSuccess) onSuccess();
+        if (onClose) setTimeout(() => onClose(), 1200);
       } else {
         toast.error("Update failed. Please try again.");
       }
@@ -144,7 +166,7 @@ const Updateproducts = () => {
 
   if (fetchLoading) {
     return (
-      <div style={{ ...S.page, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
         <p style={{ color: '#9898b3' }}>Loading product…</p>
       </div>
     );
@@ -152,15 +174,15 @@ const Updateproducts = () => {
 
   return (
     <>
-      <ToastContainer theme="dark" />
-      <div style={S.page}>
-        <div style={S.header}>
-          <h1 style={S.h1}>✏️ Update Product</h1>
-          <Link to="/showallproducts" style={S.backLink}>← All Products</Link>
-        </div>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+        
+        <div style={{ ...S.card, width: '100%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <div style={S.header}>
+            <h1 style={{ ...S.h1, width: '100%', textAlign: 'center' }}>✏️ Update Product</h1>
+            <button type="button" onClick={onClose} style={{ position: 'absolute', top: 20, right: 20, background: 'transparent', border: 'none', color: '#9898b3', fontSize: 24, cursor: 'pointer' }}>×</button>
+          </div>
 
-        <div style={S.card}>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} style={{ flexGrow: 1 }}>
             <div style={S.grid}>
 
               <div style={{ ...S.field, ...S.full }}>
@@ -239,10 +261,18 @@ const Updateproducts = () => {
 
               {existingImages.length > 0 && (
                 <div style={{ ...S.field, ...S.full }}>
-                  <label style={S.label}>Current Images <span style={{ color: '#5c5c78', fontWeight: 400, textTransform: 'none' }}>— click × to remove</span></label>
+                  <label style={S.label}>Current Images <span style={{ color: '#5c5c78', fontWeight: 400, textTransform: 'none' }}>— drag to reorder, click × to remove</span></label>
                   <div style={S.thumbRow}>
                     {existingImages.map((img, idx) => (
-                      <div key={idx} style={S.thumbWrap}>
+                      <div 
+                        key={idx} 
+                        style={{ ...S.thumbWrap, cursor: 'grab' }}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, idx)}
+                        onDragEnter={(e) => handleDragEnter(e, idx)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => e.preventDefault()}
+                      >
                         <img src={img} alt={`Current ${idx + 1}`} style={S.thumb} />
                         <button
                           type="button"

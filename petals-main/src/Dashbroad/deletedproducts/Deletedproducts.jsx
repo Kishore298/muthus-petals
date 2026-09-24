@@ -63,7 +63,7 @@ export const Deletedproducts = () => {
   return (
     <div className="main-box">
       <h1> Deleted products in store</h1>
-      <Link to={"/dashbroad"} element={<Dashbroad />}>dashbroad</Link>
+      <Link to={"/dashboard"} element={<Dashbroad />}>dashboard</Link>
       {products.map((product) => (
         <div className="product" key={product._id}>
           {/* <img

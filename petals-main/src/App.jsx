@@ -43,16 +43,18 @@ import Sizechart from "./pages/Sizechart.jsx";
 import Footer from "./componets/footer/footdetails.jsx";
 import Ingredients from "./pages/ingredients/Ingredients.jsx";
 import ReviewGallery from "./pages/gallery/reviewgallery.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
+import ShippingPolicy from "./pages/ShippingPolicy.jsx";
 
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const path = location.pathname.toLowerCase();
-  
+
   const isHidden = [
-    '/dashbroad', '/createproduct', '/showallproducts', '/showallorders', 
-    '/products/update', '/products/delete', '/createtestimonial', 
-    '/showalltestimonial', '/deletetestimonail', '/creategallery', 
+    '/dashboard', '/createproduct', '/showallproducts', '/showallorders',
+    '/products/update', '/products/delete', '/createtestimonial',
+    '/showalltestimonial', '/deletetestimonail', '/creategallery',
     '/login', '/register'
   ].some(p => path.startsWith(p));
 
@@ -72,55 +74,57 @@ function App() {
       <ToastContainer />
       <Layout>
         <Routes>
-        {/* <Route path="/" element={<Entry />} /> */}
-        <Route path="/about" element={<OurStory />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<Product />} />
+          {/* <Route path="/" element={<Entry />} /> */}
+          <Route path="/about" element={<OurStory />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Product />} />
 
-        <Route path="/haircare" element={<Product defaultCategory="Hair Care" />} />
-        <Route path="/haircare-premium" element={<HaircarePremium />} />
-        <Route path="/trending-products" element={<TrendingProducts />} />
-        <Route path="/wellness" element={<Wellness/>}/>
-        <Route path="/bodycare" element={<Bodycare />} />
-        <Route path="/fragrance" element={<Fragrance />} />
-        <Route path="/bodycare-premium" element={<BodycarePremium />} />
+          <Route path="/haircare" element={<Product defaultCategory="Hair Care" />} />
+          <Route path="/haircare-premium" element={<HaircarePremium />} />
+          <Route path="/trending-products" element={<TrendingProducts />} />
+          <Route path="/wellness" element={<Wellness />} />
+          <Route path="/bodycare" element={<Bodycare />} />
+          <Route path="/fragrance" element={<Fragrance />} />
+          <Route path="/bodycare-premium" element={<BodycarePremium />} />
 
-        <Route path="/skincare-premium" element={<SkincarePremium />} />
+          <Route path="/skincare-premium" element={<SkincarePremium />} />
 
-        <Route path="/skincare" element={<Product defaultCategory="Skin Care" />} />
-
-        
-        <Route path="/footer" element={<Footer/>}></Route>
-        <Route path="/contact" element={<Contact />}></Route>
-        <Route path="/ordershipping" element={<OrderPage />}></Route>
-        <Route path="/products/:id" element={<ProductDetail />} />
-        <Route path="/sizeimage" element={<Sizechart />} />
+          <Route path="/skincare" element={<Product defaultCategory="Skin Care" />} />
 
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
-
-        <Route path="/dashbroad" element={<Dashbroad />} />
-        <Route path="/createproduct" element={<Createproducts />} />
-        <Route path="/showallproducts" element={<Showallproducts />} />
-        <Route path="/showallorders" element={<Showallorders />} />
-        <Route path="/products/update/:id" element={<Updateproducts />} />
-        <Route path="/products/delete/:id" element={<Deletedproducts />} />
-        <Route path="/cart" element={<Cart />} />
-
-        <Route path="/testimonial" element={<Testamonial />} />
-        <Route path="/createtestimonial" element={<Createtestimonial />} />
-        <Route path="/Showalltestimonial" element={<Showalltestimonial />} />
-        <Route path="/deleteTestimonail/:id" element={<Deletedtestimonial />} />
-
-          <Route path="/ingredients" element={<Ingredients/>}/>
+          <Route path="/footer" element={<Footer />}></Route>
+          <Route path="/contact" element={<Contact />}></Route>
+          <Route path="/ordershipping" element={<OrderPage />}></Route>
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/sizeimage" element={<Sizechart />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/shipping" element={<ShippingPolicy />} />
 
 
-        <Route path="/gallery" element={<Gallery/>}/>
-        <Route path="/galleryreview" element={<ReviewGallery/>}/>
-         <Route path="/creategallery" element={<Creategallery/>}/>
-      </Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+
+          <Route path="/dashboard" element={<Dashbroad />} />
+          <Route path="/createproduct" element={<Createproducts />} />
+          <Route path="/showallproducts" element={<Showallproducts />} />
+          <Route path="/showallorders" element={<Showallorders />} />
+          <Route path="/products/update/:id" element={<Updateproducts />} />
+          <Route path="/products/delete/:id" element={<Deletedproducts />} />
+          <Route path="/cart" element={<Cart />} />
+
+          <Route path="/testimonial" element={<Testamonial />} />
+          <Route path="/createtestimonial" element={<Createtestimonial />} />
+          <Route path="/Showalltestimonial" element={<Showalltestimonial />} />
+          <Route path="/deleteTestimonail/:id" element={<Deletedtestimonial />} />
+
+          <Route path="/ingredients" element={<Ingredients />} />
+
+
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/galleryreview" element={<ReviewGallery />} />
+          <Route path="/creategallery" element={<Creategallery />} />
+        </Routes>
       </Layout>
     </BrowserRouter>
   );

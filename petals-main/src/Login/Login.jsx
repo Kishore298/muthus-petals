@@ -27,7 +27,7 @@ function Login() {
           localStorage.setItem("tokens", response.data.token);
           toast.success("Login successful!");
           if (response.data.role === "admin") {
-            navigate("/dashbroad");
+            navigate("/dashboard");
           } else if (response.data.role === "user") {
             navigate("/");
           } else {
@@ -58,7 +58,7 @@ function Login() {
     try {
       const result = await signInWithPopup(auth, provider);
       if (result.user.email === "vvigneshwaran518@gmail.com") {
-        navigate("/dashbroad");
+        navigate("/dashboard");
       } else {
         navigate("/profile");
       }

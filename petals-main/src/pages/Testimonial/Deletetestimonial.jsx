@@ -65,7 +65,7 @@ export const Deletedtestimonial = () => {
   return (
     <div className="main-box">
       <h1> Deleted products in store</h1>
-      <Link to={"/dashbroad"} element={<Dashbroad />}>dashbroad</Link>
+      <Link to={"/dashboard"} element={<Dashbroad />}>dashboard</Link>
       {testimonials.map((testimonial) => (
         <div className="product" key={testimonial._id}>
           {/* <img
