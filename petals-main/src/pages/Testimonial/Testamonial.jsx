@@ -88,18 +88,7 @@ const Testamonial = () => {
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
-  // ✅ Auto-slide effect for mobile
-  useEffect(() => {
-    if (testimonials.length === 0) return;
-    
-    // Create an interval to slide every 4 seconds
-    const interval = setInterval(() => {
-      nextTestimonial();
-    }, 4000);
 
-    // Clear interval on unmount or when dependencies change
-    return () => clearInterval(interval);
-  }, [testimonials.length]);
 
   // ✅ Loading state
   if (loading) {

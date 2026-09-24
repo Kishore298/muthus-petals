@@ -62,8 +62,8 @@ const About = () => {
               {/* Floating badge */}
               <div className="ab__founder-badge">
 
-                <span className="ab__badge-text">Founder</span>
-                <strong className="ab__badge-name">Muthulakshmi</strong>
+                <span className="ab__badge-text">Founder & CEO</span>
+                <strong className="ab__badge-name">Muthu Lakshmi S</strong>
               </div>
             </div>
 

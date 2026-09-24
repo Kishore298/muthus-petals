@@ -100,7 +100,7 @@ const Trendingshirt = () => {
           <p className="ts-mini-title">Upcoming Herbal Soap & Duo Combos</p>
 
           <h2 className="ts-title">
-            muthu's soap<em>Collection</em>
+            Muthu's Petals Soap<em>Collection</em>
           </h2>
         </div>
 

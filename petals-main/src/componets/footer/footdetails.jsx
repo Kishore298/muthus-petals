@@ -22,7 +22,7 @@ const Footer = () => {
             <h2 className="footer-logo-text">Muthu's Petals</h2>
           </div>
           <p className="tagline">
-            Muthus Petals is a brand created with love, care, and trust 💚<br />
+            Muthu's Petals is a brand created with love, care, and trust 💚<br />
             Our mission is to bring quality, comfort, and confidence through carefully crafted creations made with passion ✨
           </p>
         </div>

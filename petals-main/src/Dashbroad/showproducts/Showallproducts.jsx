@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import "./showproducts.css";
@@ -11,14 +11,46 @@ export const Showallproducts = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  // For Drag and Drop
+  const dragItem = useRef(null);
+  const dragOverItem = useRef(null);
+
+  const handleDragStart = (e, index) => {
+    dragItem.current = index;
+  };
+
+  const handleDragEnter = (e, index) => {
+    dragOverItem.current = index;
+    const copyProducts = [...products];
+    const dragItemContent = copyProducts[dragItem.current];
+    copyProducts.splice(dragItem.current, 1);
+    copyProducts.splice(dragOverItem.current, 0, dragItemContent);
+    dragItem.current = dragOverItem.current;
+    setProducts(copyProducts);
+  };
+
+  const handleDragEnd = async () => {
+    dragItem.current = null;
+    dragOverItem.current = null;
+    
+    try {
+      const token = localStorage.getItem('tokens');
+      const orderedIds = products.map(p => p._id);
+      await axios.put(`${BASE_URL}/api/v1/products/reorder`, 
+        { orderedIds },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (err) {
+      console.error("Error saving new order:", err);
+      alert("Failed to save the new order. Please try again.");
+    }
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await axios.get(`${BASE_URL}/api/v1/products`);
-        const sorted = res.data.product.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setProducts(sorted);
+        setProducts(res.data.product);
       } catch (err) {
         setError("Failed to load products. Please try again later.");
       } finally {
@@ -51,11 +83,23 @@ export const Showallproducts = () => {
         <h1>🛍️ All Products</h1>
         <Link to="/dashbroad" className="sp-back-link">← Dashboard</Link>
       </div>
-      <p className="sp-count">{products.length} products in store</p>
+      <div className="sp-controls" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '0 20px' }}>
+        <p className="sp-count" style={{ margin: 0 }}>{products.length} products in store</p>
+        <span style={{ fontSize: '14px', color: '#666' }}>Drag and drop cards to reorder</span>
+      </div>
 
       <div className="sp-grid">
-        {products.map((product) => (
-          <div className="sp-card" key={product._id}>
+        {products.map((product, index) => (
+          <div 
+            className="sp-card" 
+            key={product._id}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragEnter={(e) => handleDragEnter(e, index)}
+            onDragEnd={handleDragEnd}
+            onDragOver={(e) => e.preventDefault()}
+            style={{ cursor: 'grab' }}
+          >
             <div className="sp-img-wrap" onClick={() => navigate(`/products/${product._id}`)}>
               {product.images && product.images.length > 0 ? (
                 <img className="sp-img" src={product.images[0]} alt={product.name} />

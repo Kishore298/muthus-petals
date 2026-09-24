@@ -47,20 +47,28 @@ export const  loginuser=async(req,res)=>{
         return res.status(400).json("please enter email and password")
     }
     const user = await UserModel.findOne({email}).select('+password')
-    const token = user.getJwtToken();
-    const option = {
-      expires: new Date(Date.now() + cookiesexpiretime * 24 * 60 * 60 * 1000),
-      httpOnly: true,  secure: true, 
-      sameSite: 'strict'
-  };
-
+    
     if(!user){
-   
         return res.status(400).json({
             success:false,
             message:"user invalid email or password"
         })
     }
+
+    const isPasswordMatched = await user.isValidPassword(password);
+    if(!isPasswordMatched){
+        return res.status(400).json({
+            success:false,
+            message:"user invalid email or password"
+        })
+    }
+
+    const token = user.getJwtToken();
+    const option = {
+      expires: new Date(Date.now() + cookiesexpiretime * 24 * 60 * 60 * 1000),
+      httpOnly: true,  secure: true, 
+      sameSite: 'strict'
+    };
     res.status(200).cookie('token',token,option).json({
         success: "success",
         role:user.role,

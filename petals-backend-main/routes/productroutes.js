@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { deleteproduct, getproducts, newProduct, singleproduct, updateproduct, reorderProductImages } from '../controllers/Products.js';
+import { deleteproduct, getproducts, newProduct, singleproduct, updateproduct, reorderProductImages, reorderProducts } from '../controllers/Products.js';
 import { isauthticateuser, authorizeRoles } from '../middlewares/Authenticate.js';
 import cloudinary from '../utils/Cloudinary.js';
 import { uploadToR2 } from '../utils/r2.js';
@@ -105,6 +105,7 @@ routes.put('/products/update/:id', isauthticateuser, authorizeRoles('admin'), up
 routes.put('/products/update/stock/:id', updateproduct);
 routes.delete('/products/delete/:id', isauthticateuser, authorizeRoles('admin'), deleteproduct);
 routes.put('/products/reorder-images/:id', isauthticateuser, authorizeRoles('admin'), reorderProductImages);
+routes.put('/products/reorder', isauthticateuser, authorizeRoles('admin'), reorderProducts);
 
 
 

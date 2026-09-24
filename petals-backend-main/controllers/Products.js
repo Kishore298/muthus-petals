@@ -43,7 +43,7 @@ export const newProduct = async (req, res) => {
 export const getproducts = async (req, res) => {
   try {
     const resultsPerPage = 12;
-    const apiFeature = new ApiFeatures(Product.find(), req.query) // ✅ ApiFeatures, not apiFeature
+    const apiFeature = new ApiFeatures(Product.find().sort({ orderIndex: 1, createdAt: -1 }), req.query) // ✅ ApiFeatures, not apiFeature
       .search()
       .filter()
       .paginate(resultsPerPage);
@@ -168,5 +168,25 @@ export const reorderProductImages = async (req, res) => {
   } catch (error) {
     console.error('Error reordering images:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+// Reorder products
+export const reorderProducts = async (req, res) => {
+  try {
+    const { orderedIds } = req.body;
+    if (!orderedIds || !Array.isArray(orderedIds)) {
+      return res.status(400).json({ success: false, message: 'orderedIds must be an array' });
+    }
+
+    const updatePromises = orderedIds.map((id, index) => {
+      return Product.findByIdAndUpdate(id, { orderIndex: index });
+    });
+
+    await Promise.all(updatePromises);
+    res.status(200).json({ success: true, message: 'Products reordered successfully' });
+  } catch (error) {
+    console.error('Error reordering products:', error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };

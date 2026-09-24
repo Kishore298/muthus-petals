@@ -124,7 +124,7 @@ const Zcommunity = () => {
           {/* <p className="ts-mini-title">Upcoming & Featured Products</p> */}
 
           <h2 className="ts-title">
-            muthu's soaps <em>Collection</em>
+            Muthu's Petals Soap <em>Collection</em>
           </h2>
         </div>
 

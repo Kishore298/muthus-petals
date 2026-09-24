@@ -61,7 +61,10 @@ const productSchema = new mongoose.Schema({
       message: "please select correct color",
     },
   },
-
+  orderIndex: {
+    type: Number,
+    default: 0,
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
