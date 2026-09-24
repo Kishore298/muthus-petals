@@ -28,7 +28,7 @@
 .ab {
   position: relative;
   background: var(--cream);
-  padding: clamp(60px, 10vw, 120px) clamp(20px, 6vw, 80px);
+  padding: clamp(20px, 4vw, 60px) clamp(20px, 6vw, 80px);
   overflow: hidden;
   font-family: var(--font-body);
 }

@@ -35,8 +35,7 @@ const productSchema = new mongoose.Schema({
     enum: {
       values: [
         "Hair Care",
-        "Skin Care",
-        "Body Care"
+        "Skin Care"
       ],
       message: "please select correct category",
     },
@@ -47,7 +46,11 @@ const productSchema = new mongoose.Schema({
   },
   stock: {
     type: Number,
-    required: [true, "please enter product stock"],
+    default: 0,
+  },
+  isAvailable: {
+    type: Boolean,
+    default: false,
   },
   numofreview: {
     type: Number,

@@ -34,7 +34,8 @@ const Updateproducts = ({ productId, onClose, onSuccess }) => {
   const [color, setColor] = useState("black");
   const [cutprice, setCutprice] = useState("");
   const [stock, setStock] = useState("");
-  const [category, setCategory] = useState("Soap");
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [category, setCategory] = useState("Skin Care");
   const [describe, setDescribe] = useState("");
   const [seller, setSeller] = useState("");
   const [rating, setRating] = useState("");
@@ -86,7 +87,8 @@ const Updateproducts = ({ productId, onClose, onSuccess }) => {
         setColor(p.color || "black");
         setCutprice(p.cutprice || "");
         setStock(p.stock || "");
-        setCategory(p.category || "Soap");
+        setIsAvailable(p.isAvailable !== false);
+        setCategory(p.category || "Skin Care");
         setDescribe(p.describe || "");
         setSeller(p.seller || "");
         setRating(p.rating || "");
@@ -123,7 +125,8 @@ const Updateproducts = ({ productId, onClose, onSuccess }) => {
     formData.append("price", price);
     formData.append("color", color);
     formData.append("cutprice", cutprice);
-    formData.append("stock", stock);
+    formData.append("stock", stock || 0);
+    formData.append("isAvailable", isAvailable);
     formData.append("category", category);
     formData.append("describe", describe);
     formData.append("seller", seller);
@@ -174,9 +177,9 @@ const Updateproducts = ({ productId, onClose, onSuccess }) => {
 
   return (
     <>
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={onClose}>
         
-        <div style={{ ...S.card, width: '100%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ ...S.card, width: '100%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
           <div style={S.header}>
             <h1 style={{ ...S.h1, width: '100%', textAlign: 'center' }}>✏️ Update Product</h1>
             <button type="button" onClick={onClose} style={{ position: 'absolute', top: 20, right: 20, background: 'transparent', border: 'none', color: '#9898b3', fontSize: 24, cursor: 'pointer' }}>×</button>
@@ -207,7 +210,12 @@ const Updateproducts = ({ productId, onClose, onSuccess }) => {
 
               <div style={S.field}>
                 <label style={S.label}>Stock</label>
-                <input style={S.input} type="number" required placeholder="50" value={stock} onChange={(e) => setStock(e.target.value)} />
+                <input style={S.input} type="number" placeholder="50 (Optional)" value={stock} onChange={(e) => setStock(e.target.value)} />
+              </div>
+
+              <div style={{ ...S.field, flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
+                <input type="checkbox" id="updateIsAvailable" checked={isAvailable} onChange={(e) => setIsAvailable(e.target.checked)} style={{ width: '20px', height: '20px', accentColor: '#d875db' }} />
+                <label htmlFor="updateIsAvailable" style={{ margin: 0, cursor: 'pointer', color: '#f1f1f6', fontSize: '14px' }}>Is Product Available?</label>
               </div>
 
               <div style={S.field}>
@@ -218,17 +226,8 @@ const Updateproducts = ({ productId, onClose, onSuccess }) => {
               <div style={S.field}>
                 <label style={S.label}>Category</label>
                 <select style={S.select} value={category} onChange={(e) => setCategory(e.target.value)}>
-                  <option value="Shampoo">Shampoo</option>
-                  <option value="Soap">Soap</option>
-                  <option value="Charcoal Soap">Charcoal Soap</option>
-                  <option value="Manjistha Soap">Manjistha Soap</option>
-                  <option value="Kuppaimeni Soap">Kuppaimeni Soap</option>
-                  <option value="Double Soap Combo">Double Soap Combo</option>
-                  <option value="Face Serum">Face Serum</option>
-                  <option value="Facewash">Facewash</option>
-                  <option value="Lipbom">Lipbom</option>
-                  <option value="Hair Oil">Hair Oil</option>
-                  <option value="Root Revive Hair Oil">Root Revive Hair Oil</option>
+                  <option value="Skin Care">Skin Care</option>
+                  <option value="Hair Care">Hair Care</option>
                 </select>
               </div>
 
@@ -250,9 +249,8 @@ const Updateproducts = ({ productId, onClose, onSuccess }) => {
               <div style={S.field}>
                 <label style={S.label}>
                   Size {
-                    category === "Hair Oil" || category === "Root Revive Hair Oil" || category === "Shampoo" ? "(ml)" :
-                    category === "Face Serum" || category === "Facewash" ? "(mg)" :
-                    category.includes("Soap") || category === "Lipbom" ? "(g)" :
+                    category === "Hair Care" ? "(ml)" :
+                    category === "Skin Care" ? "(g / ml)" :
                     "(ml / g)"
                   }
                 </label>

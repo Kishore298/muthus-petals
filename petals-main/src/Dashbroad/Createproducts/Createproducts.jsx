@@ -14,6 +14,7 @@ const Createproducts = () => {
   const [color, setcolor] = useState("");
   const [cutprice, setcutprice] = useState("");
   const [stock, setStock] = useState("");
+  const [isAvailable, setIsAvailable] = useState(true);
   const [category, setCategory] = useState("");
   const [describe, setDescription] = useState("");
   const [seller, setSeller] = useState("");
@@ -44,7 +45,8 @@ const Createproducts = () => {
     formData.append("price", price);
     formData.append("color", color);
     formData.append("cutprice", cutprice);
-    formData.append("stock", stock);
+    formData.append("stock", stock || 0);
+    formData.append("isAvailable", isAvailable);
     formData.append("category", category);
     formData.append("describe", describe);
     formData.append("seller", seller);
@@ -104,7 +106,12 @@ const Createproducts = () => {
 
               <div className="cp-form-field">
                 <label>Stock</label>
-                <input type="number" required placeholder="50" className="cp-input" value={stock} onChange={(e) => setStock(e.target.value)} />
+                <input type="number" placeholder="50 (Optional if available)" className="cp-input" value={stock} onChange={(e) => setStock(e.target.value)} />
+              </div>
+
+              <div className="cp-form-field" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
+                <input type="checkbox" id="isAvailable" checked={isAvailable} onChange={(e) => setIsAvailable(e.target.checked)} style={{ width: '20px', height: '20px', accentColor: '#d875db' }} />
+                <label htmlFor="isAvailable" style={{ margin: 0, cursor: 'pointer' }}>Is Product Available?</label>
               </div>
 
               <div className="cp-form-field">
@@ -116,17 +123,8 @@ const Createproducts = () => {
                 <label>Category</label>
                 <select className="cp-select" required value={category} onChange={(e) => setCategory(e.target.value)}>
                   <option value="">Select category</option>
-                  <option value="Shampoo">Shampoo</option>
-                  <option value="Soap">Soap</option>
-                  <option value="Charcoal Soap">Charcoal Soap</option>
-                  <option value="Manjistha Soap">Manjistha Soap</option>
-                  <option value="Kuppaimeni Soap">Kuppaimeni Soap</option>
-                  <option value="Double Soap Combo">Double Soap Combo</option>
-                  <option value="Face Serum">Face Serum</option>
-                  <option value="Facewash">Facewash</option>
-                  <option value="Lipbom">Lipbom</option>
-                  <option value="Hair Oil">Hair Oil</option>
-                  <option value="Root Revive Hair Oil">Root Revive Hair Oil</option>
+                  <option value="Skin Care">Skin Care</option>
+                  <option value="Hair Care">Hair Care</option>
                 </select>
               </div>
 
@@ -149,9 +147,8 @@ const Createproducts = () => {
               <div className="cp-form-field">
                 <label>
                   Size {
-                    category === "Hair Oil" || category === "Root Revive Hair Oil" || category === "Shampoo" ? "(ml)" :
-                    category === "Face Serum" || category === "Facewash" ? "(mg)" :
-                    category.includes("Soap") || category === "Lipbom" ? "(g)" :
+                    category === "Hair Care" ? "(ml)" :
+                    category === "Skin Care" ? "(g / ml)" :
                     "(ml / g)"
                   }
                 </label>

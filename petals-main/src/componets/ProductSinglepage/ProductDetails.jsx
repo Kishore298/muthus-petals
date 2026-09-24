@@ -198,8 +198,10 @@ const ProductDetail = () => {
       return;
     }
     try {
-      const updatedStock = product.stock - quantity;
-      if (updatedStock < 0) { toast.error("Not enough stock available."); return; }
+      const isAvailable = Number(product.stock) > 0 || product.isAvailable === true;
+      if (!isAvailable) { toast.error("Product is currently out of stock."); return; }
+      
+      const updatedStock = Math.max(0, product.stock - quantity);
       addCartItem(
         {
           ...product,
@@ -375,6 +377,14 @@ const ProductDetail = () => {
                 {activeDiscount && <span className="pd-discount-pill">{activeDiscount}% off</span>}
               </div>
 
+              <div style={{ marginTop: '12px', marginBottom: '8px' }}>
+                {(Number(product.stock) > 0 || product.isAvailable === true) ? (
+                  <span style={{ color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '4px 12px', borderRadius: '16px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase' }}>Available</span>
+                ) : (
+                  <span style={{ color: '#ef4444', background: 'rgba(239,68,68,0.1)', padding: '4px 12px', borderRadius: '16px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase' }}>Out of Stock</span>
+                )}
+              </div>
+
               {/* ── Prepaid Notice + Bank Details (always visible) ── */}
               <div className="pd-prepaid-block">
                 <div className="pd-prepaid-header">
@@ -514,12 +524,12 @@ const ProductDetail = () => {
               {/* CTA */}
               <div className="pd-cta-row">
                 <button
-                  className={`pd-btn-cart ${!shippingChecked ? "pd-btn-cart-disabled" : ""}`}
+                  className={`pd-btn-cart ${(!shippingChecked || (Number(product.stock) <= 0 && product.isAvailable === false)) ? "pd-btn-cart-disabled" : ""}`}
                   onClick={handleAddToCart}
-                  disabled={!shippingChecked}
+                  disabled={!shippingChecked || (Number(product.stock) <= 0 && product.isAvailable === false)}
                   title={!shippingChecked ? "Check delivery charges first" : "Add to Cart"}
                 >
-                  {!shippingChecked ? "🚚 Check delivery first" : "Add to Cart"}
+                  {!shippingChecked ? "🚚 Check delivery first" : ((Number(product.stock) <= 0 && product.isAvailable === false) ? "Out of Stock" : "Add to Cart")}
                 </button>
                 <button
                   className={`pd-btn-wish ${wishlist ? "pd-wish-active" : ""}`}

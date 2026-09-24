@@ -11,7 +11,7 @@ export const Showallproducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const [editingProductId, setEditingProductId] = useState(null);
   const [deletingProductId, setDeletingProductId] = useState(null);
 
@@ -38,11 +38,11 @@ export const Showallproducts = () => {
   const handleDragEnd = async () => {
     dragItem.current = null;
     dragOverItem.current = null;
-    
+
     try {
       const token = localStorage.getItem('tokens');
       const orderedIds = products.map(p => p._id);
-      await axios.put(`${BASE_URL}/api/v1/products/reorder`, 
+      await axios.put(`${BASE_URL}/api/v1/products/reorder`,
         { orderedIds },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -83,80 +83,88 @@ export const Showallproducts = () => {
   };
 
   if (loading) return <div className="sp-state">Loading products…</div>;
-  if (error)   return <div className="sp-state">{error}</div>;
+  if (error) return <div className="sp-state">{error}</div>;
   if (products.length === 0) return <div className="sp-state">No products found.</div>;
 
   return (
     <>
-    <AdminNavbar />
-    <div className="admin-page">
-      <div style={{ maxWidth: '850px', margin: '0 auto', width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
-           <div>
+      <AdminNavbar />
+      <div className="admin-page">
+        <div style={{ maxWidth: '850px', margin: '0 auto', width: '100%' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+            <div>
               <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#f1f1f6', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                 🛍️ All Products
+                🛍️ All Products
               </h1>
               <p style={{ margin: '4px 0 0', color: '#9898b3', fontSize: '14px', fontWeight: 500 }}>{products.length} products in store</p>
-           </div>
-           <span style={{ fontSize: '13px', color: '#5c5c78', fontWeight: 500 }}>Drag and drop cards to reorder</span>
+            </div>
+            <span style={{ fontSize: '13px', color: '#5c5c78', fontWeight: 500 }}>Drag and drop cards to reorder</span>
+          </div>
+
+          <div className="sp-grid">
+            {products.map((product, index) => (
+              <div
+                className="sp-card"
+                key={product._id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnter={(e) => handleDragEnter(e, index)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => e.preventDefault()}
+                style={{ cursor: 'grab' }}
+              >
+                <div className="sp-img-wrap" onClick={() => navigate(`/products/${product._id}`)}>
+                  {product.images && product.images.length > 0 ? (
+                    <img className="sp-img" src={product.images[0]} alt={product.name} />
+                  ) : (
+                    <div className="sp-no-img">🧴</div>
+                  )}
+                </div>
+                <div className="sp-info">
+                  <p className="sp-name">{product.name}</p>
+                  <div className="sp-meta">
+                    <span className="sp-price">₹{product.price}</span>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      {(Number(product.stock) > 0 || product.isAvailable === true) ? (
+                        <span style={{ color: '#34d399', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' }}>Available</span>
+                      ) : (
+                        <span style={{ color: '#ef4444', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' }}>Out of Stock</span>
+                      )}
+                    </div>
+                    <span className="sp-stock">Stock: {product.stock || 0}</span>
+                  </div>
+                </div>
+                <div className="sp-actions">
+                  <button className="sp-btn edit" onClick={() => setEditingProductId(product._id)}>Edit</button>
+                  <button className="sp-btn del" onClick={() => setDeletingProductId(product._id)}>Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-      <div className="sp-grid">
-        {products.map((product, index) => (
-          <div 
-            className="sp-card" 
-            key={product._id}
-            draggable
-            onDragStart={(e) => handleDragStart(e, index)}
-            onDragEnter={(e) => handleDragEnter(e, index)}
-            onDragEnd={handleDragEnd}
-            onDragOver={(e) => e.preventDefault()}
-            style={{ cursor: 'grab' }}
-          >
-            <div className="sp-img-wrap" onClick={() => navigate(`/products/${product._id}`)}>
-              {product.images && product.images.length > 0 ? (
-                <img className="sp-img" src={product.images[0]} alt={product.name} />
-              ) : (
-                <div className="sp-no-img">🧴</div>
-              )}
-            </div>
-            <div className="sp-info">
-              <p className="sp-name">{product.name}</p>
-              <div className="sp-meta">
-                <span className="sp-price">₹{product.price}</span>
-                <span className="sp-stock">Stock: {product.stock}</span>
+        {editingProductId && (
+          <UpdateProductModal
+            productId={editingProductId}
+            onClose={() => setEditingProductId(null)}
+            onSuccess={fetchProducts}
+          />
+        )}
+
+        {deletingProductId && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} onClick={() => setDeletingProductId(null)}>
+            <div style={{ background: '#1a1a24', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '32px', width: '100%', maxWidth: '400px', textAlign: 'center', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+              <button type="button" onClick={() => setDeletingProductId(null)} style={{ position: 'absolute', top: 16, right: 16, background: 'transparent', border: 'none', color: '#9898b3', fontSize: 24, cursor: 'pointer' }}>×</button>
+              <h3 style={{ color: '#f1f1f6', fontSize: '20px', marginBottom: '16px', marginTop: 0 }}>Delete Product</h3>
+              <p style={{ color: '#9898b3', fontSize: '14px', marginBottom: '24px' }}>Are you sure you want to delete this product? This action cannot be undone.</p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button onClick={() => setDeletingProductId(null)} style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.05)', color: '#9898b3', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+                <button onClick={handleDelete} style={{ padding: '10px 24px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Delete</button>
               </div>
             </div>
-            <div className="sp-actions">
-              <button className="sp-btn edit" onClick={() => setEditingProductId(product._id)}>Edit</button>
-              <button className="sp-btn del" onClick={() => setDeletingProductId(product._id)}>Delete</button>
-            </div>
           </div>
-        ))}
+        )}
       </div>
-      </div>
-
-      {editingProductId && (
-        <UpdateProductModal 
-          productId={editingProductId} 
-          onClose={() => setEditingProductId(null)} 
-          onSuccess={fetchProducts} 
-        />
-      )}
-
-      {deletingProductId && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ background: '#1a1a24', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '32px', width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-            <h3 style={{ color: '#f1f1f6', fontSize: '20px', marginBottom: '16px', marginTop: 0 }}>Delete Product</h3>
-            <p style={{ color: '#9898b3', fontSize: '14px', marginBottom: '24px' }}>Are you sure you want to delete this product? This action cannot be undone.</p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button onClick={() => setDeletingProductId(null)} style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.05)', color: '#9898b3', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
-              <button onClick={handleDelete} style={{ padding: '10px 24px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
     </>
   );
 };

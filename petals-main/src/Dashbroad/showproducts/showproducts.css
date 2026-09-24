@@ -104,8 +104,7 @@ body { font-family: 'DM Sans', sans-serif; background: #0f0f14; color: #f1f1f6; 
 .sp-meta {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 10px;
 }
 
 .sp-price { color: #f1f1f6; font-weight: 700; font-size: 15px; }
@@ -152,12 +151,16 @@ body { font-family: 'DM Sans', sans-serif; background: #0f0f14; color: #f1f1f6; 
   color: #9898b3;
 }
 
+@media (max-width: 1024px) {
+  .sp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 16px; }
+}
+
 @media (max-width: 768px) {
   .admin-page { padding: 24px 16px; }
-  .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px; }
+  .sp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 16px; }
   .sp-grid.testimonials-grid, .sp-grid.gallery-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 480px) {
-  .sp-grid { grid-template-columns: 1fr !important; }
+  .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px; }
 }

@@ -183,9 +183,16 @@ function GridExample({ defaultCategory = "All" }) {
                   {/* CONTENT */}
 
                   <div className="product-content">
-                    <span className="product-category">
-                      {product.category}
-                    </span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span className="product-category" style={{ marginBottom: 0 }}>
+                        {product.category}
+                      </span>
+                      {(Number(product.stock) > 0 || product.isAvailable === true) ? (
+                        <span style={{ color: '#10b981', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: '12px' }}>Available</span>
+                      ) : (
+                        <span style={{ color: '#ef4444', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', background: 'rgba(239,68,68,0.1)', padding: '2px 8px', borderRadius: '12px' }}>Out of Stock</span>
+                      )}
+                    </div>
 
                     <h2 className="product-name">
                       {product.name}

@@ -192,7 +192,16 @@ const Zcommunity = () => {
 
                 {/* Content */}
                 <div className="ts-card-body">
-                  <p className="ts-name">{product.name}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                    <p className="ts-name" style={{ margin: 0, flex: 1 }}>{product.name}</p>
+                    <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', flexShrink: 0, marginTop: '2px' }}>
+                      {(Number(product.stock) > 0 || product.isAvailable === true) ? (
+                        <span style={{ color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 6px', borderRadius: '12px' }}>Available</span>
+                      ) : (
+                        <span style={{ color: '#ef4444', background: 'rgba(239,68,68,0.1)', padding: '2px 6px', borderRadius: '12px' }}>Out of Stock</span>
+                      )}
+                    </div>
+                  </div>
 
                   <StarRating rating={rating} count={reviews} />
 
