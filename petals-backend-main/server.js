@@ -8,6 +8,8 @@ import dotenv from 'dotenv';
 import Products from './routes/productroutes.js';
 import userrouter from './routes/AuthRouter.js';
 import testimonialroute from './routes/TestimonialRoute.js';
+import paymentRoute from './routes/PaymentRoute.js';
+import { paymentWebhook } from './controllers/PaymentController.js';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -18,6 +20,10 @@ import { fileURLToPath } from 'url';
 dotenv.config();
 
 const app = express();
+
+// Razorpay webhook must receive raw body for signature verification
+app.post('/api/v1/payment/payment-webhook', express.raw({ type: 'application/json' }), paymentWebhook);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
@@ -38,6 +44,8 @@ app.use('/api/v1', orderRoute);
 //testimonial 
 app.use('/api/v1', testimonialroute)
 
+// Payment API
+app.use('/api/v1/payment', paymentRoute);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

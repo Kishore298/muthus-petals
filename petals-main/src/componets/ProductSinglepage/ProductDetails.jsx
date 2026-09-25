@@ -273,7 +273,7 @@ const ProductDetail = () => {
       key: "payment", title: "Payment Policy",
       content: (
         <ul className="accord-list">
-          <li><strong>Prepaid only – No COD.</strong> Bank details are shown above on this page.</li>
+          <li><strong>Prepaid only – No COD.</strong> Secure online payment options available at checkout.</li>
           <li>Share payment screenshot on WhatsApp to confirm your order.</li>
           <li>Failed transactions refunded within 3–4 business days.</li>
         </ul>
@@ -385,38 +385,12 @@ const ProductDetail = () => {
                 )}
               </div>
 
-              {/* ── Prepaid Notice + Bank Details (always visible) ── */}
+              {/* ── Prepaid Notice (always visible) ── */}
               <div className="pd-prepaid-block">
-                <div className="pd-prepaid-header">
+                <div className="pd-prepaid-header" style={{ marginBottom: 0 }}>
                   <span>🔒</span>
                   <span>Prepaid Only &nbsp;·&nbsp; No Cash on Delivery (COD)</span>
                 </div>
-                <p className="pd-bank-title">Bank Transfer Details</p>
-                <div className="pd-bank-table">
-                  <div className="pd-bank-row">
-                    <span className="pd-bank-label">Name</span>
-                    <span className="pd-bank-value">Muthu Lakshmi S</span>
-                  </div>
-                  <div className="pd-bank-row">
-                    <span className="pd-bank-label">Bank</span>
-                    <span className="pd-bank-value">Bank of Baroda</span>
-                  </div>
-                  <div className="pd-bank-row">
-                    <span className="pd-bank-label">A/C No</span>
-                    <span className="pd-bank-value pd-bank-acc">19688100000161</span>
-                  </div>
-                  <div className="pd-bank-row">
-                    <span className="pd-bank-label">IFSC</span>
-                    <span className="pd-bank-value">BARB0KOLATH <em className="pd-bank-note-inline">(5th char is zero)</em></span>
-                  </div>
-                  <div className="pd-bank-row">
-                    <span className="pd-bank-label">Branch</span>
-                    <span className="pd-bank-value">Kolathur, Chennai</span>
-                  </div>
-                </div>
-                <p className="pd-bank-whatsapp">
-                  📲 Payment QR / UPI ID will be sent to your WhatsApp after ordering. Share screenshot to confirm.
-                </p>
               </div>
 
               {/* Shipping checker */}

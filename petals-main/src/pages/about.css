@@ -241,13 +241,11 @@
 .ab__eyebrow-line {
   flex: 1;
   height: 1px;
-
-  background: linear-gradient(to right, var(--green-pale), transparent);
+  background: linear-gradient(to left, var(--green-pale), transparent);
   max-width: 60px;
 }
 .ab__eyebrow-line:last-child {
-  background: linear-gradient(to left, var(--green-pale), transparent);
-  
+  background: linear-gradient(to right, var(--green-pale), transparent);
 }
 
 /* ── Heading ── */
@@ -346,6 +344,12 @@
   }
   .ab__content-col {
     order: 1;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .ab__pills {
+    justify-content: center;
   }
 
   .ab__photo-frame {

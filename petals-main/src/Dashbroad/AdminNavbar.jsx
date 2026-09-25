@@ -10,6 +10,13 @@ const AdminNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const drawerRef = useRef(null);
 
+  useEffect(() => {
+    document.body.style.backgroundColor = '#0f0f14';
+    return () => {
+      document.body.style.backgroundColor = '';
+    };
+  }, []);
+
   const handleLogout = async () => {
     try {
       localStorage.removeItem("tokens");

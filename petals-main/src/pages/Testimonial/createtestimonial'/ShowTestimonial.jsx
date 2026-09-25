@@ -99,9 +99,9 @@ export const Showalltestimonial = () => {
     <AdminNavbar />
     <div className="admin-page" style={{ position: 'relative' }}>
       <div style={{ maxWidth: '850px', margin: '0 auto', width: '100%' }}>
-      <div className="sp-header" style={{ flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h1 style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>Customer Testimonials</h1>
-        <button className="sp-btn" style={{ background: '#d875db', color: '#fff', padding: '0 16px', width: 'fit-content', flexShrink: 0, height: '32px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => handleOpenModal()}>
+      <div className="sp-header">
+        <h1 style={{ margin: 0 }}>Customer Testimonials</h1>
+        <button className="sp-btn sp-btn-primary" onClick={() => handleOpenModal()}>
           + Add New Testimonial
         </button>
       </div>

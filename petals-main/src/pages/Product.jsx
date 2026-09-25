@@ -70,11 +70,7 @@ function GridExample({ defaultCategory = "All" }) {
       );
 
       const sortedProducts =
-        res.data.product.sort(
-          (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
-        );
+        res.data.product;
 
       setProducts(sortedProducts);
     } catch (err) {

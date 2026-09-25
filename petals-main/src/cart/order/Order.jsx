@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import "../cart.css";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const loadScript = (src) => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 
 const ShippingPage = () => {
   const [name, setName] = useState("");
@@ -41,46 +53,126 @@ const ShippingPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const orderData = {
-        name, address, email, city, country, phone, pin,
-        cartData,
-        shippingCharge,
-        total,
-      };
-      await axios.post(`${BASE_URL}/api/v1/order/new`, orderData);
+      const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+      if (!res) {
+        toast.error("Razorpay SDK failed to load. Are you online?");
+        return;
+      }
 
-      /* ── WhatsApp message ── */
-      let msg = `Hello! Muthu's Petals — new order 🛍\n\n`;
-      msg += `👤 Name    : ${name}\n`;
-      msg += `📧 Email   : ${email}\n`;
-      msg += `📞 Phone   : ${phone}\n`;
-      msg += `📍 Address : ${address}, ${city} - ${pin}, ${country}\n`;
-      if (shippingDistrict) msg += `🗺 District : ${shippingDistrict}\n`;
-      msg += `\n🛒 Items:\n`;
+      // 1. Get Razorpay Key
+      const keyData = await axios.get(`${BASE_URL}/api/v1/payment/get-key`);
+      const key = keyData.data.key;
 
-      cartData.forEach((item) => {
-        msg += `\n• ${item.name}`;
-        if (item.size) msg += ` (${item.size} ml)`;
-        if (item.color) msg += ` — ${item.color}`;
-        msg += ` × ${item.quantity}`;
-        msg += ` = ₹${item.price * item.quantity}`;
+      // 2. Create Order in Backend
+      const orderDataResponse = await axios.post(`${BASE_URL}/api/v1/payment/create-payment-order`, {
+        amount: total,
       });
 
-      msg += `\n\n💰 Subtotal : ₹${subtotal}`;
-      msg += `\n🚚 Shipping : ${shippingCharge === 0 ? "Free" : shippingCharge !== null ? `₹${shippingCharge}` : "TBD"}`;
-      msg += `\n✅ Total    : ₹${total}`;
-      msg += `\n\n📌 Map: https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address + " " + city + " " + pin)}`;
+      if (!orderDataResponse.data.success) {
+        toast.error("Failed to create payment order");
+        return;
+      }
 
-      localStorage.removeItem("cart");
-      setCartData([]);
-      setName(""); setAddress(""); setEmail("");
-      setCity(""); setCountry(""); setPhone(""); setPin("");
+      const { order } = orderDataResponse.data;
 
-      window.location.href = `https://api.whatsapp.com/send?phone=6381181527&text=${encodeURIComponent(msg)}`;
+      // 3. Initialize Razorpay Checkout
+      const options = {
+        key: key,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Muthu's Petals",
+        description: "Order Payment",
+        order_id: order.id,
+        handler: async function (response) {
+          try {
+            // 4. Verify Payment
+            const verifyRes = await axios.post(`${BASE_URL}/api/v1/payment/verify-payment`, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            if (verifyRes.data.success) {
+              // 5. Place the order
+              const finalOrderData = {
+                name, address, email, city, country, phone, pin,
+                cartData,
+                shippingCharge,
+                total,
+                paymentId: response.razorpay_payment_id,
+                orderId: response.razorpay_order_id,
+                paymentStatus: 'paid'
+              };
+              
+              await axios.post(`${BASE_URL}/api/v1/order/new`, finalOrderData);
+
+              /* ── WhatsApp message ── */
+              let msg = `*Muthu's Petals — New Order!*\n\n`;
+              
+              msg += `*Customer Details:*\n`;
+              msg += `Name: ${name}\n`;
+              msg += `Email: ${email}\n`;
+              msg += `Phone: ${phone}\n\n`;
+              
+              msg += `*Shipping Address:*\n`;
+              msg += `${address}, ${city} - ${pin}, ${country}\n`;
+              if (shippingDistrict) msg += `District: ${shippingDistrict}\n`;
+              msg += `\n*Payment ID:* ${response.razorpay_payment_id}\n\n`;
+              
+              msg += `*Order Items:*\n`;
+              cartData.forEach((item) => {
+                msg += `- ${item.name}`;
+                if (item.size) msg += ` (${item.size} ml)`;
+                if (item.color) msg += ` — ${item.color}`;
+                msg += ` x ${item.quantity}`;
+                msg += ` = Rs. ${item.price * item.quantity}\n`;
+              });
+
+              msg += `\n*Summary:*\n`;
+              msg += `Subtotal: Rs. ${subtotal}\n`;
+              msg += `Shipping: ${shippingCharge === 0 ? "Free" : shippingCharge !== null ? `Rs. ${shippingCharge}` : "TBD"}\n`;
+              msg += `*Total Paid: Rs. ${total}*\n\n`;
+              msg += `*Location Map:* https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address + " " + city + " " + pin)}`;
+
+              localStorage.removeItem("cart");
+              setCartData([]);
+              setName(""); setAddress(""); setEmail("");
+              setCity(""); setCountry(""); setPhone(""); setPin("");
+
+              window.location.href = `https://api.whatsapp.com/send?phone=6381181527&text=${encodeURIComponent(msg)}`;
+            }
+          } catch (err) {
+            console.error("Verification error:", err);
+            toast.error("Payment verification failed! Please contact support.");
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            console.log("User closed Razorpay checkout");
+            // Optionally, tell the backend that checkout was abandoned:
+            // axios.post(`${BASE_URL}/api/v1/payment/abandon`, { order_id: order.id });
+            toast.info("Payment cancelled. You can try again when you're ready.");
+          }
+        },
+        prefill: {
+          name: name,
+          email: email,
+          contact: phone,
+        },
+        theme: {
+          color: "#d875db",
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+
     } catch (err) {
       console.error(err);
-      alert("Error placing order. Please try again.");
+      const msg = err.response?.data?.message || "Error initializing payment. Please try again.";
+      toast.error(msg);
     }
   };
 
@@ -164,7 +256,7 @@ const ShippingPage = () => {
             )}
 
             <button className="sp-btn" type="submit">
-              Place order via WhatsApp
+              Pay ₹{total} & Place Order
             </button>
           </form>
 

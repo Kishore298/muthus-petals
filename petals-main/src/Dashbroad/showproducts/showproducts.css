@@ -1,4 +1,3 @@
-/* Show All Products page */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap');
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -10,12 +9,11 @@ body { font-family: 'DM Sans', sans-serif; background: #0f0f14; color: #f1f1f6; 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
   margin-bottom: 32px;
 }
 
-.sp-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: #f1f1f6; letter-spacing: -0.5px;}
+.sp-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: #f1f1f6; letter-spacing: -0.5px; white-space: nowrap; }
 
 .sp-back-link {
   display: inline-flex;
@@ -55,6 +53,9 @@ body { font-family: 'DM Sans', sans-serif; background: #0f0f14; color: #f1f1f6; 
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .sp-card:hover {
@@ -89,43 +90,62 @@ body { font-family: 'DM Sans', sans-serif; background: #0f0f14; color: #f1f1f6; 
 
 .sp-info {
   padding: 10px 10px 6px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .sp-name {
   font-size: 13px;
   font-weight: 500;
   color: #9898b3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   margin-bottom: 4px;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .sp-meta {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
+  width: 100%;
+  margin-top: auto;
 }
+.sp-meta > :nth-child(3) { margin-left: auto; }
 
 .sp-price { color: #f1f1f6; font-weight: 700; font-size: 15px; }
-.sp-stock { color: #5c5c78; font-size: 11px; font-weight: 600; margin-left: auto;}
+.sp-stock { color: #5c5c78; font-size: 11px; font-weight: 600; white-space: nowrap; }
 
 .sp-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   padding: 0 10px 10px;
+  margin-top: -4px;
 }
 
 .sp-btn {
-  height: 30px;
+  height: 36px;
+  padding: 2px 16px 0 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.sp-actions .sp-btn {
+  height: 28px !important;
+  padding: 2px 0 0 0;
 }
 
 .sp-btn.edit {
@@ -142,6 +162,20 @@ body { font-family: 'DM Sans', sans-serif; background: #0f0f14; color: #f1f1f6; 
 }
 .sp-btn.del:hover { background: #ef4444; color: #fff;}
 
+.sp-btn-primary {
+  background: #d875db;
+  color: #fff;
+  padding: 2px 12px 0 12px;
+  flex: none !important;
+  width: max-content !important;
+  max-width: 300px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.sp-btn-primary:hover { background: #e8a0f0; }
+
 .sp-state {
   display: flex;
   align-items: center;
@@ -155,12 +189,17 @@ body { font-family: 'DM Sans', sans-serif; background: #0f0f14; color: #f1f1f6; 
   .sp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 16px; }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 780px) {
   .admin-page { padding: 24px 16px; }
-  .sp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 16px; }
+  .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px; }
   .sp-grid.testimonials-grid, .sp-grid.gallery-grid { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 480px) {
   .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px; }
+  .sp-header { flex-direction: column; justify-content: center; text-align: center; gap: 12px; }
+  .sp-header h1 { font-size: 26px; white-space: normal; }
+  .sp-btn { height: 36px !important; font-size: 11px !important; line-height: normal; padding: 2px 18px 0 18px !important; }
+  .sp-actions .sp-btn { height: 28px !important; font-size: 9px !important; padding: 2px 0 0 0 !important; }
+  .sp-btn-primary { height: 36px !important; padding: 2px 18px 0 18px !important; font-size: 11px !important; width: max-content !important; max-width: 100%; }
 }

@@ -15,11 +15,7 @@ function TrendingProducts() {
 
         const res = await axios.get(`${BASE_URL}/api/v1/products?category=Skin Care`);
 
-        const sortedProducts = res.data.product.sort((a, b) => {
-          const dateA = new Date(a.createdAt);
-          const dateB = new Date(b.createdAt);
-          return dateB - dateA;
-        });
+        const sortedProducts = res.data.product;
 
         setProducts(sortedProducts);
       } catch (err) {

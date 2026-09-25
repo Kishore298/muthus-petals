@@ -178,7 +178,6 @@ export const Showallorders = () => {
               {/* Head */}
               <div className="so-card-head">
                 <div>
-                  <p className="so-order-id">#{order._id}</p>
                   <p className="so-order-date">
                     {order.createdAt
                       ? new Date(order.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })

@@ -19,9 +19,7 @@ function Wellness() {
         const res = await axios.get(
           `${BASE_URL}/api/v1/products`
         );
-        const sortedProducts = res.data.product.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
+        const sortedProducts = res.data.product;
         setProducts(sortedProducts);
       } catch (err) {
         console.error("Error fetching products:", err);

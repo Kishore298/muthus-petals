@@ -98,7 +98,7 @@ export const Showallproducts = () => {
               </h1>
               <p style={{ margin: '4px 0 0', color: '#9898b3', fontSize: '14px', fontWeight: 500 }}>{products.length} products in store</p>
             </div>
-            <span style={{ fontSize: '13px', color: '#5c5c78', fontWeight: 500 }}>Drag and drop cards to reorder</span>
+            <span style={{ fontSize: '13px', color: '#5c5c78', fontWeight: 500 }}>Drag & drop cards to reorder</span>
           </div>
 
           <div className="sp-grid">

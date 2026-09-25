@@ -6,8 +6,7 @@
 body { font-family: 'DM Sans', sans-serif; background: #0f0f14; color: #f1f1f6; }
 
 .cp-page {
-  height: calc(100vh - 70px);
-  overflow: hidden;
+  min-height: calc(100vh - 70px);
   background: #0f0f14;
   padding: 20px 24px 40px;
   width: 100%;
