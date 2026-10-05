@@ -35,11 +35,12 @@ const ShippingPage = () => {
   }, []);
 
   /* ── shipping charge: highest among all items ── */
-  const shippingCharge = cartData.reduce((max, item) => {
-    const c = item.shippingCharge ?? null;
-    if (c === null) return max;
-    return max === null ? c : Math.max(max, c);
-  }, null);
+  // const shippingCharge = cartData.reduce((max, item) => {
+  //   const c = item.shippingCharge ?? null;
+  //   if (c === null) return max;
+  //   return max === null ? c : Math.max(max, c);
+  // }, null);
+  const shippingCharge = 0;
 
   const shippingDistrict = cartData.find(i => i.district)?.district || "";
 
@@ -99,7 +100,7 @@ const ShippingPage = () => {
               const finalOrderData = {
                 name, address, email, city, country, phone, pin,
                 cartData,
-                shippingCharge,
+                // shippingCharge,
                 total,
                 paymentId: response.razorpay_payment_id,
                 orderId: response.razorpay_order_id,
@@ -246,14 +247,14 @@ const ShippingPage = () => {
             </div>
 
             {/* Shipping charge notice on form */}
-            {shippingCharge !== null && (
+            {/* {shippingCharge !== null && (
               <div className={`sp-ship-notice ${shippingCharge === 0 ? "sp-ship-notice-free" : "sp-ship-notice-paid"}`}>
                 {shippingCharge === 0
                   ? <>🎉 Free delivery to <strong>{shippingDistrict}</strong>!</>
                   : <>🚚 Delivery to <strong>{shippingDistrict}</strong> — shipping charge: <strong>₹{shippingCharge}</strong></>
                 }
               </div>
-            )}
+            )} */}
 
             <button className="sp-btn" type="submit">
               Pay ₹{total} & Place Order
@@ -317,19 +318,19 @@ const ShippingPage = () => {
               </span>
             </div>
 
-            {shippingCharge === null && (
+            {/* {shippingCharge === null && (
               <p className="sp-ship-note">
                 Shipping will be confirmed after order placement.
               </p>
-            )}
+            )} */}
 
             <div className="sp-row total">
               <span>Total</span>
               <span>
                 ₹{total}
-                {shippingCharge === null && (
+                {/* {shippingCharge === null && (
                   <span style={{ fontSize: 11, fontWeight: 400, color: "#9ca3af" }}> + shipping</span>
-                )}
+                )} */}
               </span>
             </div>
 

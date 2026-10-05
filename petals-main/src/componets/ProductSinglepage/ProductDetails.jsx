@@ -191,12 +191,12 @@ const ProductDetail = () => {
 
   /* ── add to cart ── */
   const handleAddToCart = async () => {
-    if (!shippingChecked || shippingCharge === null) {
-      toast.warn("Please check delivery charges for your location before adding to cart.", {
-        position: "top-right", autoClose: 2500,
-      });
-      return;
-    }
+    // if (!shippingChecked || shippingCharge === null) {
+    //   toast.warn("Please check delivery charges for your location before adding to cart.", {
+    //     position: "top-right", autoClose: 2500,
+    //   });
+    //   return;
+    // }
     try {
       const isAvailable = Number(product.stock) > 0 || product.isAvailable === true;
       if (!isAvailable) { toast.error("Product is currently out of stock."); return; }
@@ -394,7 +394,7 @@ const ProductDetail = () => {
               </div>
 
               {/* Shipping checker */}
-              <div className="pd-ship-checker">
+              {/* <div className="pd-ship-checker">
                 <p className="pd-section-label">
                   Check delivery charges
                   <span className="pd-ship-required"> (required before adding to cart)</span>
@@ -444,7 +444,7 @@ const ProductDetail = () => {
                 {shippingChecked && shippingCharge === null && (
                   <p className="pd-ship-unknown">Could not find charges for this location. Contact us on WhatsApp.</p>
                 )}
-              </div>
+              </div> */}
 
               {/* Stock bar */}
               {product.stock <= 20 && (
@@ -490,20 +490,24 @@ const ProductDetail = () => {
                 <span>Subtotal</span>
                 <span className="pd-total-val">
                   ₹{activePrice * quantity}
-                  {shippingCharge > 0 && <span className="pd-total-ship"> + ₹{shippingCharge} shipping</span>}
-                  {shippingCharge === 0 && <span className="pd-total-free"> + Free shipping</span>}
+                  {/* {shippingCharge > 0 && <span className="pd-total-ship"> + ₹{shippingCharge} shipping</span>}
+                  {shippingCharge === 0 && <span className="pd-total-free"> + Free shipping</span>} */}
                 </span>
               </div>
 
               {/* CTA */}
               <div className="pd-cta-row">
                 <button
-                  className={`pd-btn-cart ${(!shippingChecked || (Number(product.stock) <= 0 && product.isAvailable === false)) ? "pd-btn-cart-disabled" : ""}`}
+                  // className={`pd-btn-cart ${(!shippingChecked || (Number(product.stock) <= 0 && product.isAvailable === false)) ? "pd-btn-cart-disabled" : ""}`}
+                  className={`pd-btn-cart ${(Number(product.stock) <= 0 && product.isAvailable === false) ? "pd-btn-cart-disabled" : ""}`}
                   onClick={handleAddToCart}
-                  disabled={!shippingChecked || (Number(product.stock) <= 0 && product.isAvailable === false)}
-                  title={!shippingChecked ? "Check delivery charges first" : "Add to Cart"}
+                  // disabled={!shippingChecked || (Number(product.stock) <= 0 && product.isAvailable === false)}
+                  disabled={(Number(product.stock) <= 0 && product.isAvailable === false)}
+                  // title={!shippingChecked ? "Check delivery charges first" : "Add to Cart"}
+                  title={"Add to Cart"}
                 >
-                  {!shippingChecked ? "🚚 Check delivery first" : ((Number(product.stock) <= 0 && product.isAvailable === false) ? "Out of Stock" : "Add to Cart")}
+                  {/* {!shippingChecked ? "🚚 Check delivery first" : ((Number(product.stock) <= 0 && product.isAvailable === false) ? "Out of Stock" : "Add to Cart")} */}
+                  {((Number(product.stock) <= 0 && product.isAvailable === false) ? "Out of Stock" : "Add to Cart")}
                 </button>
                 <button
                   className={`pd-btn-wish ${wishlist ? "pd-wish-active" : ""}`}
@@ -514,9 +518,9 @@ const ProductDetail = () => {
                 </button>
               </div>
 
-              {!shippingChecked && (
+              {/* {!shippingChecked && (
                 <p className="pd-cart-hint">↑ Enter your city above and check shipping to enable "Add to Cart"</p>
-              )}
+              )} */}
 
               {/* Trust badges */}
               <div className="pd-trust-row">

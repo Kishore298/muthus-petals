@@ -4,7 +4,7 @@ import productmodel from "../model/Product.js";
 
 export const createorder = async (req, res, next) => {
   try {
-    const { name, address, email, city, country, phone, pin, cartData, shippingCharge, total } = req.body;
+    const { name, address, email, city, country, phone, pin, cartData, /* shippingCharge, */ total } = req.body;
 
     const orderItems = cartData ? cartData.map(item => ({
       name: item.name,
@@ -24,7 +24,7 @@ export const createorder = async (req, res, next) => {
       phone,
       pin,
       orderItems,
-      shippingCharge: shippingCharge || 0,
+      // shippingCharge: shippingCharge || 0,
       totalprice: total || 0
     });
     res.status(200).json({

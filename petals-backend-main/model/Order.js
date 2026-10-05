@@ -43,11 +43,11 @@ const orderSchema = new mongoose.Schema({
       }
     }
   ],
-  shippingCharge: {
-    type: Number,
-    required: true,
-    default: 0
-  },
+  // shippingCharge: {
+  //   type: Number,
+  //   required: true,
+  //   default: 0
+  // },
   totalprice: {
     type: Number,
     required: true,
