@@ -17,35 +17,7 @@ import kuppaimeniSoapImg from "../../assets/kuppaimeni-soap.jpg";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const SHIPPING_RATES = {
-  "chennai": 90, "kancheepuram": 90, "chengalpattu": 90, "tiruvallur": 90,
-  "karaikudi": 90, "ramnad": 90, "sivagangai": 90, "virudhunagar": 90,
-  "vellore": 90, "ranipet": 90, "tirupattur": 90, "tiruvannamalai": 90,
-  "villupuram": 90, "kallakurichi": 90, "cuddalore": 90,
-  "salem": 90, "namakkal": 90, "dharmapuri": 90, "krishnagiri": 90,
-  "coimbatore": 90, "tiruppur": 90, "erode": 90,
-  "the nilgiris": 90, "nilgiris": 90, "ooty": 90,
-  "tiruchirappalli": 90, "trichy": 90, "karur": 90, "perambalur": 90, "ariyalur": 90,
-  "thanjavur": 90, "tiruvarur": 90, "nagapattinam": 90, "mayiladuthurai": 90, "pudukkottai": 90,
-  "madurai": 90, "dindigul": 90, "theni": 90, "sivaganga": 90,
-  "ramanathapuram": 90, "thoothukudi": 90, "tuticorin": 90,
-  "tirunelveli": 90, "tenkasi": 90, "kanyakumari": 90,
-  "kochi": 90, "thiruvananthapuram": 90, "kozhikode": 90,
-  "bengaluru": 90, "bangalore": 90, "karnataka": 90,
-  "andhra": 90, "hyderabad": 100,
-  "mumbai": 110, "delhi": 110, "pune": 110, "kolkata": 110,
-  "ahmedabad": 110, "jaipur": 110, "lucknow": 110, "bhopal": 110, "nagpur": 110,
-};
 
-const ALL_LOCATIONS = Object.keys(SHIPPING_RATES).map(
-  (loc) => loc.replace(/\b\w/g, (c) => c.toUpperCase())
-);
-
-const getShippingCharge = (district) => {
-  if (!district) return null;
-  const key = district.trim().toLowerCase();
-  return key in SHIPPING_RATES ? SHIPPING_RATES[key] : 120;
-};
 
 /* ─────────────────────────────────────────
    SIZE-BASED PRICING
@@ -91,13 +63,7 @@ const ProductDetail = () => {
   const [wishlist, setWishlist] = useState(false);
   const [openAccord, setOpenAccord] = useState(null);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [district, setDistrict] = useState("");
-  const [shippingCharge, setShippingCharge] = useState(null);
-  const [shippingChecked, setShippingChecked] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [highlightedIdx, setHighlightedIdx] = useState(-1);
-  const suggestRef = useRef(null);
+
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -121,60 +87,9 @@ const ProductDetail = () => {
     if (id) fetchProduct();
   }, [id]);
 
-  /* ── close suggestions on outside click ── */
-  useEffect(() => {
-    const handler = (e) => {
-      if (suggestRef.current && !suggestRef.current.contains(e.target))
-        setShowSuggestions(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
   /* ── helpers ── */
   const handleQuantityChange = (change) =>
     setQuantity((prev) => Math.max(prev + change, 1));
-
-  const checkShipping = () => {
-    setShippingCharge(getShippingCharge(district));
-    setShippingChecked(true);
-    setShowSuggestions(false);
-  };
-
-  const handleDistrictChange = (e) => {
-    const val = e.target.value;
-    setDistrict(val);
-    setShippingChecked(false);
-    setShippingCharge(null);
-    setHighlightedIdx(-1);
-    if (val.trim().length > 0) {
-      const filtered = ALL_LOCATIONS.filter((loc) =>
-        loc.toLowerCase().startsWith(val.trim().toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  };
-
-  const selectSuggestion = (loc) => {
-    setDistrict(loc);
-    setSuggestions([]);
-    setShowSuggestions(false);
-    setHighlightedIdx(-1);
-    setShippingCharge(getShippingCharge(loc));
-    setShippingChecked(true);
-  };
-
-  const handleKeyDown = (e) => {
-    if (!showSuggestions) { if (e.key === "Enter") checkShipping(); return; }
-    if (e.key === "ArrowDown") { e.preventDefault(); setHighlightedIdx((p) => Math.min(p + 1, suggestions.length - 1)); }
-    else if (e.key === "ArrowUp") { e.preventDefault(); setHighlightedIdx((p) => Math.max(p - 1, 0)); }
-    else if (e.key === "Enter") { e.preventDefault(); highlightedIdx >= 0 ? selectSuggestion(suggestions[highlightedIdx]) : checkShipping(); }
-    else if (e.key === "Escape") { setShowSuggestions(false); }
-  };
 
   /* ── derived flags ── */
   const aloeVera = product ? isAloeVera(product.name, product.category) : false;
@@ -191,16 +106,10 @@ const ProductDetail = () => {
 
   /* ── add to cart ── */
   const handleAddToCart = async () => {
-    // if (!shippingChecked || shippingCharge === null) {
-    //   toast.warn("Please check delivery charges for your location before adding to cart.", {
-    //     position: "top-right", autoClose: 2500,
-    //   });
-    //   return;
-    // }
     try {
       const isAvailable = Number(product.stock) > 0 || product.isAvailable === true;
       if (!isAvailable) { toast.error("Product is currently out of stock."); return; }
-      
+
       const updatedStock = Math.max(0, product.stock - quantity);
       addCartItem(
         {
@@ -209,8 +118,6 @@ const ProductDetail = () => {
           cutprice: activeCutprice,
           size: selectedSize,
           sizeUnit,
-          shippingCharge: shippingCharge ?? 0,
-          district,
         },
         quantity
       );
@@ -393,58 +300,7 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              {/* Shipping checker */}
-              {/* <div className="pd-ship-checker">
-                <p className="pd-section-label">
-                  Check delivery charges
-                  <span className="pd-ship-required"> (required before adding to cart)</span>
-                </p>
-                <div className="pd-ship-row" ref={suggestRef} style={{ position: "relative" }}>
-                  <input
-                    className="pd-ship-input"
-                    type="text"
-                    placeholder="Enter your city / district"
-                    value={district}
-                    autoComplete="off"
-                    onChange={handleDistrictChange}
-                    onKeyDown={handleKeyDown}
-                    onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                    aria-label="City or district"
-                    aria-autocomplete="list"
-                    aria-expanded={showSuggestions}
-                  />
-                  <button className="pd-ship-btn" onClick={checkShipping}>Check</button>
 
-                  {showSuggestions && (
-                    <ul className="pd-suggest-list" role="listbox">
-                      {suggestions.slice(0, 7).map((loc, i) => (
-                        <li
-                          key={loc}
-                          className={`pd-suggest-item ${i === highlightedIdx ? "pd-suggest-highlight" : ""}`}
-                          role="option"
-                          aria-selected={i === highlightedIdx}
-                          onMouseDown={() => selectSuggestion(loc)}
-                          onMouseEnter={() => setHighlightedIdx(i)}
-                        >
-                          <span className="pd-suggest-icon">📍</span>{loc}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                {shippingChecked && shippingCharge !== null && (
-                  <div className={`pd-ship-result ${shippingCharge === 0 ? "pd-ship-free" : "pd-ship-paid"}`}>
-                    {shippingCharge === 0
-                      ? <><span>🎉</span> Free delivery to <strong>{district}</strong>!</>
-                      : <><span>🚚</span> Shipping to <strong>{district}</strong>: <strong>₹{shippingCharge}</strong></>
-                    }
-                  </div>
-                )}
-                {shippingChecked && shippingCharge === null && (
-                  <p className="pd-ship-unknown">Could not find charges for this location. Contact us on WhatsApp.</p>
-                )}
-              </div> */}
 
               {/* Stock bar */}
               {product.stock <= 20 && (
@@ -490,24 +346,19 @@ const ProductDetail = () => {
                 <span>Subtotal</span>
                 <span className="pd-total-val">
                   ₹{activePrice * quantity}
-                  {/* {shippingCharge > 0 && <span className="pd-total-ship"> + ₹{shippingCharge} shipping</span>}
-                  {shippingCharge === 0 && <span className="pd-total-free"> + Free shipping</span>} */}
+
                 </span>
               </div>
 
               {/* CTA */}
               <div className="pd-cta-row">
                 <button
-                  // className={`pd-btn-cart ${(!shippingChecked || (Number(product.stock) <= 0 && product.isAvailable === false)) ? "pd-btn-cart-disabled" : ""}`}
                   className={`pd-btn-cart ${(Number(product.stock) <= 0 && product.isAvailable === false) ? "pd-btn-cart-disabled" : ""}`}
                   onClick={handleAddToCart}
-                  // disabled={!shippingChecked || (Number(product.stock) <= 0 && product.isAvailable === false)}
                   disabled={(Number(product.stock) <= 0 && product.isAvailable === false)}
-                  // title={!shippingChecked ? "Check delivery charges first" : "Add to Cart"}
-                  title={"Add to Cart"}
+                  title="Add to Cart"
                 >
-                  {/* {!shippingChecked ? "🚚 Check delivery first" : ((Number(product.stock) <= 0 && product.isAvailable === false) ? "Out of Stock" : "Add to Cart")} */}
-                  {((Number(product.stock) <= 0 && product.isAvailable === false) ? "Out of Stock" : "Add to Cart")}
+                  {(Number(product.stock) <= 0 && product.isAvailable === false) ? "Out of Stock" : "Add to Cart"}
                 </button>
                 <button
                   className={`pd-btn-wish ${wishlist ? "pd-wish-active" : ""}`}
@@ -517,10 +368,6 @@ const ProductDetail = () => {
                   {wishlist ? "♥" : "♡"}
                 </button>
               </div>
-
-              {/* {!shippingChecked && (
-                <p className="pd-cart-hint">↑ Enter your city above and check shipping to enable "Add to Cart"</p>
-              )} */}
 
               {/* Trust badges */}
               <div className="pd-trust-row">

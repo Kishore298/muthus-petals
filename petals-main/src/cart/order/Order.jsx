@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { getShippingCharge } from "../../utils/shippingRates";
 import "../cart.css";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -34,26 +35,23 @@ const ShippingPage = () => {
     }
   }, []);
 
-  /* ── shipping charge: highest among all items ── */
-  // const shippingCharge = cartData.reduce((max, item) => {
-  //   const c = item.shippingCharge ?? null;
-  //   if (c === null) return max;
-  //   return max === null ? c : Math.max(max, c);
-  // }, null);
-  const shippingCharge = 0;
-
-  const shippingDistrict = cartData.find(i => i.district)?.district || "";
+  /* ── shipping charge: auto-calculated from city ── */
+  const shippingCharge = getShippingCharge(city);
 
   const subtotal = cartData.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const total = subtotal + (shippingCharge ?? 0);
+  const total = subtotal + shippingCharge;
 
   const shippingLabel =
-    shippingCharge === null ? "Calculated at checkout" :
-      shippingCharge === 0 ? "Free" :
-        `₹${shippingCharge}`;
+    shippingCharge === 0 ? "Enter city to calculate"
+      : `₹${shippingCharge}`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (shippingCharge === 0) {
+      toast.error("Please enter your city to calculate shipping charges.");
+      return;
+    }
 
     try {
       const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
@@ -100,7 +98,7 @@ const ShippingPage = () => {
               const finalOrderData = {
                 name, address, email, city, country, phone, pin,
                 cartData,
-                // shippingCharge,
+                shippingCharge,
                 total,
                 paymentId: response.razorpay_payment_id,
                 orderId: response.razorpay_order_id,
@@ -119,7 +117,6 @@ const ShippingPage = () => {
               
               msg += `*Shipping Address:*\n`;
               msg += `${address}, ${city} - ${pin}, ${country}\n`;
-              if (shippingDistrict) msg += `District: ${shippingDistrict}\n`;
               msg += `\n*Payment ID:* ${response.razorpay_payment_id}\n\n`;
               
               msg += `*Order Items:*\n`;
@@ -133,7 +130,7 @@ const ShippingPage = () => {
 
               msg += `\n*Summary:*\n`;
               msg += `Subtotal: Rs. ${subtotal}\n`;
-              msg += `Shipping: ${shippingCharge === 0 ? "Free" : shippingCharge !== null ? `Rs. ${shippingCharge}` : "TBD"}\n`;
+              msg += `Shipping (${city}): Rs. ${shippingCharge}\n`;
               msg += `*Total Paid: Rs. ${total}*\n\n`;
               msg += `*Location Map:* https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address + " " + city + " " + pin)}`;
 
@@ -152,8 +149,6 @@ const ShippingPage = () => {
         modal: {
           ondismiss: function () {
             console.log("User closed Razorpay checkout");
-            // Optionally, tell the backend that checkout was abandoned:
-            // axios.post(`${BASE_URL}/api/v1/payment/abandon`, { order_id: order.id });
             toast.info("Payment cancelled. You can try again when you're ready.");
           }
         },
@@ -246,15 +241,16 @@ const ShippingPage = () => {
               </div>
             </div>
 
-            {/* Shipping charge notice on form */}
-            {/* {shippingCharge !== null && (
-              <div className={`sp-ship-notice ${shippingCharge === 0 ? "sp-ship-notice-free" : "sp-ship-notice-paid"}`}>
-                {shippingCharge === 0
-                  ? <>🎉 Free delivery to <strong>{shippingDistrict}</strong>!</>
-                  : <>🚚 Delivery to <strong>{shippingDistrict}</strong> — shipping charge: <strong>₹{shippingCharge}</strong></>
-                }
+            {/* Shipping charge notice */}
+            {city.trim() && shippingCharge > 0 && (
+              <div style={{
+                marginTop: '16px', padding: '12px 16px', borderRadius: '10px',
+                background: 'rgba(216,117,219,0.08)', border: '1px solid rgba(216,117,219,0.2)',
+                fontSize: '14px', color: '#f1f1f6', display: 'flex', alignItems: 'center', gap: '8px'
+              }}>
+                🚚 Delivery to <strong>{city}</strong> — shipping charge: <strong>₹{shippingCharge}</strong>
               </div>
-            )} */}
+            )}
 
             <button className="sp-btn" type="submit">
               Pay ₹{total} & Place Order
@@ -286,11 +282,6 @@ const ShippingPage = () => {
                       {item.size ? ` · ${item.size} ml` : ""}
                       {item.color ? ` · ${item.color}` : ""}
                     </p>
-                    {item.district && (
-                      <p style={{ fontSize: 11, color: "#6b7280" }}>
-                        📍 {item.district}
-                      </p>
-                    )}
                   </div>
                   <div className="sp-product-price">₹{item.price * item.quantity}</div>
                 </div>
@@ -307,34 +298,28 @@ const ShippingPage = () => {
             <div className="sp-row">
               <span>
                 Shipping
-                {shippingDistrict && (
+                {city.trim() && (
                   <span style={{ fontSize: 11, color: "#9ca3af", marginLeft: 4 }}>
-                    · {shippingDistrict}
+                    · {city}
                   </span>
                 )}
               </span>
-              <span className={shippingCharge === 0 ? "sp-free" : "sp-ship-cost"}>
+              <span className="sp-ship-cost">
                 {shippingLabel}
               </span>
             </div>
-
-            {/* {shippingCharge === null && (
-              <p className="sp-ship-note">
-                Shipping will be confirmed after order placement.
-              </p>
-            )} */}
 
             <div className="sp-row total">
               <span>Total</span>
               <span>
                 ₹{total}
-                {/* {shippingCharge === null && (
+                {shippingCharge === 0 && (
                   <span style={{ fontSize: 11, fontWeight: 400, color: "#9ca3af" }}> + shipping</span>
-                )} */}
+                )}
               </span>
             </div>
 
-            <div className="sp-secure">🔒 Secure checkout via WhatsApp</div>
+            <div className="sp-secure">🔒 Secure checkout via Razorpay</div>
           </aside>
 
         </div>
