@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import "./showproducts.css";
 import AdminNavbar from '../AdminNavbar';
 import UpdateProductModal from '../updateproducts/Updateproduct';
@@ -165,9 +167,9 @@ export const Showallproducts = () => {
           </div>
         )}
       </div>
+      <ToastContainer theme="dark" />
     </>
   );
 };
 
 export default Showallproducts;
-
