@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { getShippingCharge } from "../../utils/shippingRates";
+import { getShippingByPin } from "../../utils/shippingRates";
 import "../cart.css";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -35,21 +35,21 @@ const ShippingPage = () => {
     }
   }, []);
 
-  /* ── shipping charge: auto-calculated from city ── */
-  const shippingCharge = getShippingCharge(city);
+  /* ── shipping charge: auto-calculated from PIN ── */
+  const { charge: shippingCharge, zone: shippingZone } = getShippingByPin(pin);
 
   const subtotal = cartData.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const total = subtotal + shippingCharge;
 
   const shippingLabel =
-    shippingCharge === 0 ? "Enter city to calculate"
+    shippingCharge === 0 ? "Enter PIN to calculate"
       : `₹${shippingCharge}`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (shippingCharge === 0) {
-      toast.error("Please enter your city to calculate shipping charges.");
+      toast.error("Please enter a valid 6-digit PIN code to calculate shipping charges.");
       return;
     }
 
@@ -130,7 +130,7 @@ const ShippingPage = () => {
 
               msg += `\n*Summary:*\n`;
               msg += `Subtotal: Rs. ${subtotal}\n`;
-              msg += `Shipping (${city}): Rs. ${shippingCharge}\n`;
+              msg += `Shipping (${shippingZone}): Rs. ${shippingCharge}\n`;
               msg += `*Total Paid: Rs. ${total}*\n\n`;
               msg += `*Location Map:* https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address + " " + city + " " + pin)}`;
 
@@ -242,13 +242,13 @@ const ShippingPage = () => {
             </div>
 
             {/* Shipping charge notice */}
-            {city.trim() && shippingCharge > 0 && (
+            {pin.trim().length === 6 && shippingCharge > 0 && (
               <div style={{
                 marginTop: '16px', padding: '12px 16px', borderRadius: '10px',
                 background: 'rgba(216,117,219,0.08)', border: '1px solid rgba(216,117,219,0.2)',
                 fontSize: '14px', color: '#f1f1f6', display: 'flex', alignItems: 'center', gap: '8px'
               }}>
-                🚚 Delivery to <strong>{city}</strong> — shipping charge: <strong>₹{shippingCharge}</strong>
+                🚚 Delivery to <strong>{shippingZone}</strong> — shipping charge: <strong>₹{shippingCharge}</strong>
               </div>
             )}
 
@@ -298,9 +298,9 @@ const ShippingPage = () => {
             <div className="sp-row">
               <span>
                 Shipping
-                {city.trim() && (
+                {shippingZone && (
                   <span style={{ fontSize: 11, color: "#9ca3af", marginLeft: 4 }}>
-                    · {city}
+                    · {shippingZone}
                   </span>
                 )}
               </span>
