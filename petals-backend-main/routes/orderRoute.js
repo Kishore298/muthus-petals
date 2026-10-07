@@ -1,5 +1,5 @@
 import express from 'express';
-import { createorder, getsingleorder, myorder, orders, updateorder, deleteorder } from '../controllers/orderController.js'; // Adjusted import statement
+import { createorder, getsingleorder, myorder, orders, updateorder, deleteorder, subscribeToAdminOrders } from '../controllers/orderController.js';
 import { isauthticateuser, authorizeRoles } from '../middlewares/Authenticate.js';
 
 const routes = express.Router();
@@ -10,6 +10,7 @@ routes.get('/order/:id', getsingleorder);
 routes.get('/myorder', myorder);
 
 // Admin routes
+routes.post('/admin/subscribe-notifications', subscribeToAdminOrders);
 routes.get('/admin/orders', isauthticateuser, authorizeRoles('admin'), orders);
 routes.put('/admin/order/:id', isauthticateuser, authorizeRoles('admin'), updateorder);
 routes.delete('/admin/order/:id', isauthticateuser, authorizeRoles('admin'), deleteorder);
