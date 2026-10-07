@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
@@ -11,8 +11,8 @@ const firebaseConfig = {
   measurementId: "G-K01V1SEQC8"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase safely
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const messaging = getMessaging(app);
 
 export const requestForToken = async (vapidKey) => {
