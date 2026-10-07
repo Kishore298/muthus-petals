@@ -268,9 +268,12 @@ const ShippingPage = () => {
               <div style={{
                 marginTop: '16px', padding: '12px 16px', borderRadius: '10px',
                 background: 'rgba(216,117,219,0.08)', border: '1px solid rgba(216,117,219,0.2)',
-                fontSize: '14px', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '8px'
+                fontSize: '14px', color: '#4b5563', display: 'flex', alignItems: 'flex-start', gap: '10px'
               }}>
-                🚚 Delivery to <strong>{shippingZone}</strong> — shipping charge: <strong>₹{shippingCharge}</strong>
+                <span style={{ fontSize: '16px', marginTop: '2px' }}>🚚</span>
+                <span style={{ lineHeight: '1.5' }}>
+                  Delivery to <strong>{shippingZone}</strong> — shipping charge: <strong>₹{shippingCharge}</strong>
+                </span>
               </div>
             )}
 
