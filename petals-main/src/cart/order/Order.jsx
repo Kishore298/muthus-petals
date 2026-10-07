@@ -126,21 +126,21 @@ const ShippingPage = () => {
                 orderId: response.razorpay_order_id,
                 paymentStatus: 'paid'
               };
-              
+
               await axios.post(`${BASE_URL}/api/v1/order/new`, finalOrderData);
 
               /* ── WhatsApp message ── */
               let msg = `*Muthu's Petals — New Order!*\n\n`;
-              
+
               msg += `*Customer Details:*\n`;
               msg += `Name: ${name}\n`;
               msg += `Email: ${email}\n`;
               msg += `Phone: ${phone}\n\n`;
-              
+
               msg += `*Shipping Address:*\n`;
               msg += `${address}, ${city} - ${pin}, ${country}\n`;
               msg += `\n*Payment ID:* ${response.razorpay_payment_id}\n\n`;
-              
+
               msg += `*Order Items:*\n`;
               cartData.forEach((item) => {
                 msg += `- ${item.name}`;
@@ -268,7 +268,7 @@ const ShippingPage = () => {
               <div style={{
                 marginTop: '16px', padding: '12px 16px', borderRadius: '10px',
                 background: 'rgba(216,117,219,0.08)', border: '1px solid rgba(216,117,219,0.2)',
-                fontSize: '14px', color: '#f1f1f6', display: 'flex', alignItems: 'center', gap: '8px'
+                fontSize: '14px', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '8px'
               }}>
                 🚚 Delivery to <strong>{shippingZone}</strong> — shipping charge: <strong>₹{shippingCharge}</strong>
               </div>
