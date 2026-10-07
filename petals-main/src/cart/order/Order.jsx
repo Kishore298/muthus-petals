@@ -35,20 +35,42 @@ const ShippingPage = () => {
     }
   }, []);
 
-  /* ── shipping charge: auto-calculated from PIN ── */
-  const { charge: shippingCharge, zone: shippingZone } = getShippingByPin(pin);
+  /* ── shipping charge: auto-calculated from PIN API ── */
+  const [shippingCharge, setShippingCharge] = useState(0);
+  const [shippingZone, setShippingZone] = useState("");
+  const [calculating, setCalculating] = useState(false);
+
+  useEffect(() => {
+    const fetchShipping = async () => {
+      const cleaned = String(pin).replace(/\s/g, "");
+      if (cleaned.length === 6) {
+        setCalculating(true);
+        const { charge, zone } = await getShippingByPin(cleaned);
+        setShippingCharge(charge);
+        setShippingZone(zone);
+        setCalculating(false);
+      } else {
+        setShippingCharge(0);
+        setShippingZone("");
+      }
+    };
+
+    const timeoutId = setTimeout(fetchShipping, 500);
+    return () => clearTimeout(timeoutId);
+  }, [pin]);
 
   const subtotal = cartData.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const total = subtotal + shippingCharge;
 
-  const shippingLabel =
-    shippingCharge === 0 ? "Enter PIN to calculate"
+  const shippingLabel = calculating
+    ? "Calculating..."
+    : shippingCharge === 0 ? "Enter PIN to calculate"
       : `₹${shippingCharge}`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (shippingCharge === 0) {
+    if (shippingCharge === 0 || calculating) {
       toast.error("Please enter a valid 6-digit PIN code to calculate shipping charges.");
       return;
     }
@@ -200,17 +222,17 @@ const ShippingPage = () => {
             <p className="sp-section-label">Personal info</p>
             <div className="sp-grid">
               <div className="sp-field">
-                <label>Full name</label>
+                <label>Full name <span style={{ color: "#ef4444" }}>*</span></label>
                 <input className="sp-input" placeholder="e.g. Priya Sharma"
                   value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div className="sp-field">
-                <label>Phone</label>
+                <label>Phone <span style={{ color: "#ef4444" }}>*</span></label>
                 <input className="sp-input" placeholder="+91 98765 43210" type="tel"
                   value={phone} onChange={(e) => setPhone(e.target.value)} required />
               </div>
               <div className="sp-field sp-full">
-                <label>Email address</label>
+                <label>Email address <span style={{ color: "#ef4444" }}>*</span></label>
                 <input className="sp-input" type="email" placeholder="you@example.com"
                   value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
@@ -220,29 +242,29 @@ const ShippingPage = () => {
             <p className="sp-section-label">Delivery address</p>
             <div className="sp-grid">
               <div className="sp-field sp-full">
-                <label>Street address</label>
+                <label>Street address <span style={{ color: "#ef4444" }}>*</span></label>
                 <input className="sp-input" placeholder="Door no., street, area"
                   value={address} onChange={(e) => setAddress(e.target.value)} required />
               </div>
               <div className="sp-field">
-                <label>City / District</label>
+                <label>City / District <span style={{ color: "#ef4444" }}>*</span></label>
                 <input className="sp-input" placeholder="Chennai"
                   value={city} onChange={(e) => setCity(e.target.value)} required />
               </div>
               <div className="sp-field">
-                <label>PIN code</label>
+                <label>PIN code <span style={{ color: "#ef4444" }}>*</span></label>
                 <input className="sp-input" placeholder="600 001"
                   value={pin} onChange={(e) => setPin(e.target.value)} required />
               </div>
               <div className="sp-field">
-                <label>Country</label>
+                <label>Country <span style={{ color: "#ef4444" }}>*</span></label>
                 <input className="sp-input" placeholder="India"
                   value={country} onChange={(e) => setCountry(e.target.value)} required />
               </div>
             </div>
 
             {/* Shipping charge notice */}
-            {pin.trim().length === 6 && shippingCharge > 0 && (
+            {pin.trim().length === 6 && shippingCharge > 0 && !calculating && (
               <div style={{
                 marginTop: '16px', padding: '12px 16px', borderRadius: '10px',
                 background: 'rgba(216,117,219,0.08)', border: '1px solid rgba(216,117,219,0.2)',
