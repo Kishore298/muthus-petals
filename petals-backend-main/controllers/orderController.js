@@ -1,5 +1,6 @@
 import Ordermodel from "../model/Order.js";
 import productmodel from "../model/Product.js";
+import { messaging } from "../utils/firebaseAdmin.js";
 
 
 export const createorder = async (req, res, next) => {
@@ -32,6 +33,22 @@ export const createorder = async (req, res, next) => {
       message: "Order created",
       order,
     });
+
+    // Send push notification to admins in the background
+    try {
+      if (messaging) {
+        await messaging.send({
+          topic: 'admin_orders',
+          notification: {
+            title: '🎉 New Order Received!',
+            body: `${name} just placed an order for ₹${total || 0}.`
+          }
+        });
+        console.log("Push notification sent successfully!");
+      }
+    } catch (pushErr) {
+      console.error("Failed to send push notification:", pushErr);
+    }
   } catch (error) {
   
     console.error("Error creating order:", error);
@@ -140,3 +157,22 @@ export const deleteorder = async (req, res, next) => {
 console.log(err)
   }
 }
+
+// New endpoint for admins to subscribe their FCM token to the admin_orders topic
+export const subscribeToAdminOrders = async (req, res, next) => {
+  try {
+    const { fcmToken } = req.body;
+    if (!fcmToken) {
+      return res.status(400).json({ success: false, message: "No token provided" });
+    }
+    if (messaging) {
+      await messaging.subscribeToTopic(fcmToken, 'admin_orders');
+      return res.status(200).json({ success: true, message: "Subscribed to admin_orders" });
+    } else {
+      return res.status(500).json({ success: false, message: "Firebase Admin not initialized" });
+    }
+  } catch (err) {
+    console.error("Error subscribing to topic:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
