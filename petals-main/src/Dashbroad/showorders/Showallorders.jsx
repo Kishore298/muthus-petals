@@ -99,108 +99,127 @@ export const Showallorders = () => {
       img.onerror = resolve;
     });
 
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
+    // 2. Setup POS thermal receipt dimensions (80mm width)
+    // We'll set a long height (e.g., 297mm) to accommodate multiple items,
+    // POS printers will just cut when the content finishes.
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: [80, 297]
+    });
+    
+    const margin = 5;
+    const pageWidth = 80;
+    let currentY = 8;
 
     // Header / Brand
-    // Add Logo (x: 14, y: 15, width: 20, height: 20)
-    doc.addImage(img, 'JPEG', 14, 15, 20, 20);
-
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.setFont("helvetica", "normal");
-    doc.text("Premium Organic Care", 38, 25);
-    doc.text("www.muthuspetals.com", 38, 30);
-
-    // Invoice Title
-    doc.setFontSize(20);
-    doc.setTextColor(40, 40, 40);
+    doc.addImage(img, 'JPEG', margin, currentY, 12, 12);
+    
     doc.setFont("helvetica", "bold");
-    doc.text("INVOICE", pageWidth - 14, 25, { align: "right" });
+    doc.setFontSize(12);
+    doc.setTextColor(40, 40, 40);
+    doc.text("Muthu's Petals", 19, currentY + 4);
 
-    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, pageWidth - 14, 32, { align: "right" });
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Premium Organic Care", 19, currentY + 8);
+    doc.text("www.muthuspetals.com", 19, currentY + 12);
+
+    currentY += 18;
+
+    // Receipt Title & Meta
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.text("ORDER RECEIPT", pageWidth / 2, currentY, { align: "center" });
+    
+    currentY += 6;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, margin, currentY);
+    
     if (order.razorpay_payment_id) {
-      doc.text(`Payment Ref: ${order.razorpay_payment_id}`, pageWidth - 14, 37, { align: "right" });
+      currentY += 4;
+      doc.text(`Ref: ${order.razorpay_payment_id}`, margin, currentY);
     }
 
-    // Line separator
-    doc.setDrawColor(230, 230, 230);
-    doc.line(14, 48, pageWidth - 14, 48);
-
-    // Customer & Shipping Info
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(40, 40, 40);
-    doc.text("Bill To:", 14, 56);
+    currentY += 4;
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.line(margin, currentY, pageWidth - margin, currentY);
     
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(80, 80, 80);
-    doc.text(order.name || 'Unknown', 14, 62);
-    doc.text(order.email || '', 14, 67);
-    doc.text(order.phone || '', 14, 72);
+    currentY += 5;
 
+    // Customer Info
+    doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(40, 40, 40);
-    doc.text("Ship To:", pageWidth / 2, 56);
-
+    doc.text("Ship To:", margin, currentY);
+    
+    currentY += 4;
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(80, 80, 80);
-    const splitAddress = doc.splitTextToSize(`${order.address || ''}, ${order.city || ''} - ${order.pin || ''}, ${order.country || ''}`, 80);
-    doc.text(splitAddress, pageWidth / 2, 62);
+    doc.text(order.name || 'Unknown', margin, currentY);
+    currentY += 4;
+    doc.text(order.phone || '', margin, currentY);
+    currentY += 4;
+    
+    const addressString = `${order.address || ''}, ${order.city || ''} - ${order.pin || ''}`;
+    const splitAddress = doc.splitTextToSize(addressString, pageWidth - (margin * 2));
+    doc.text(splitAddress, margin, currentY);
+    
+    currentY += (splitAddress.length * 4) + 2;
 
-    // Items Table
-    const tableColumn = ["Product", "Qty", "Price", "Total"];
+    // Items Table (Compact)
+    const tableColumn = ["Item", "Qty", "Total"];
     const tableRows = [];
 
     (order.orderItems || []).forEach(item => {
       const rowData = [
         item.name || 'Product',
         (item.quantity || 1).toString(),
-        `Rs ${item.price || 0}`,
         `Rs ${(item.price || 0) * (item.quantity || 1)}`
       ];
       tableRows.push(rowData);
     });
 
     autoTable(doc, {
-      startY: 90,
+      startY: currentY,
+      margin: { left: margin, right: margin },
       head: [tableColumn],
       body: tableRows,
-      theme: 'grid',
-      headStyles: { fillColor: [40, 40, 45], textColor: 255 },
-      styles: { fontSize: 9, cellPadding: 4 },
+      theme: 'plain', // cleaner for thermal
+      headStyles: { fillColor: [240, 240, 240], textColor: 20, fontStyle: 'bold' },
+      styles: { fontSize: 8, cellPadding: 1, overflow: 'linebreak' },
       columnStyles: {
-        0: { cellWidth: 90 },
-        1: { halign: 'center' },
-        2: { halign: 'right' },
-        3: { halign: 'right' }
+        0: { cellWidth: 40 }, // Item
+        1: { cellWidth: 10, halign: 'center' }, // Qty
+        2: { cellWidth: 20, halign: 'right' } // Total
       }
     });
 
     // Totals
-    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 120;
+    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : currentY + 10;
     
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(60, 60, 60);
-    doc.text("Shipping Charge:", pageWidth - 50, finalY, { align: "right" });
-    doc.text(`Rs ${order.shippingCharge || 0}`, pageWidth - 14, finalY, { align: "right" });
+    doc.line(margin, finalY, pageWidth - margin, finalY);
+    
+    doc.text("Shipping:", pageWidth - 30, finalY + 5);
+    doc.text(`Rs ${order.shippingCharge || 0}`, pageWidth - margin, finalY + 5, { align: "right" });
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(40, 40, 40);
-    doc.text("Grand Total:", pageWidth - 50, finalY + 8, { align: "right" });
-    doc.text(`Rs ${order.totalprice || 0}`, pageWidth - 14, finalY + 8, { align: "right" });
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Total:", pageWidth - 30, finalY + 10);
+    doc.text(`Rs ${order.totalprice || 0}`, pageWidth - margin, finalY + 10, { align: "right" });
 
     // Footer note
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setFont("helvetica", "italic");
-    doc.setTextColor(150, 150, 150);
-    doc.text("Thank you for shopping with Muthu's Petals!", pageWidth / 2, doc.internal.pageSize.height - 15, { align: "center" });
+    doc.setTextColor(100, 100, 100);
+    doc.text("Thank you for your purchase!", pageWidth / 2, finalY + 18, { align: "center" });
 
-    doc.save(`Invoice_${order._id}.pdf`);
+    doc.save(`Receipt_${order._id}.pdf`);
   };
 
   const filtered = orders.filter(order => {
