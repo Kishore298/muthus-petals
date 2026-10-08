@@ -58,6 +58,16 @@ const orderSchema = new mongoose.Schema({
     required: true,
     default: 'Processing'
   },
+  razorpay_order_id: {
+    type: String
+  },
+  razorpay_payment_id: {
+    type: String
+  },
+  paymentStatus: {
+    type: String,
+    default: 'Pending'
+  },
   deliverytimeAT: {
     type: Date
   },

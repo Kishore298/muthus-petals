@@ -201,6 +201,11 @@ export const Showallorders = () => {
                   <p>{order.city} – {order.pin}</p>
                   <p>{order.country}</p>
                 </div>
+                <div className="so-section">
+                  <h4>Payment Details</h4>
+                  <p><strong>Status:</strong> <span style={{ color: order.paymentStatus === 'PAID' ? '#10b981' : order.paymentStatus === 'FAILED' ? '#ef4444' : '#eab308' }}>{order.paymentStatus || 'Pending'}</span></p>
+                  {order.razorpay_payment_id && <p><strong>Payment ID:</strong> {order.razorpay_payment_id}</p>}
+                </div>
               </div>
 
               {/* Items table */}

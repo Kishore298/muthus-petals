@@ -1,6 +1,7 @@
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import Ordermodel from "../model/Order.js";
 
 dotenv.config();
 
@@ -99,7 +100,10 @@ export const paymentWebhook = async (req, res) => {
           orderId: payment.order_id,
           amount: payment.amount,
         });
-        // TODO: Update Order DB paymentStatus = 'PAID'
+        await Ordermodel.findOneAndUpdate(
+          { razorpay_order_id: payment.order_id },
+          { paymentStatus: 'PAID' }
+        );
         break;
       }
       case 'payment.failed': {
@@ -110,7 +114,10 @@ export const paymentWebhook = async (req, res) => {
           reason: payment.error_description,
           code: payment.error_code,
         });
-        // TODO: Update Order DB paymentStatus = 'FAILED'
+        await Ordermodel.findOneAndUpdate(
+          { razorpay_order_id: payment.order_id },
+          { paymentStatus: 'FAILED' }
+        );
         break;
       }
       case 'order.paid': {
