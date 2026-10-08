@@ -3,10 +3,11 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import './showorders.css';
 import AdminNavbar from '../AdminNavbar';
+import logoImg from '../../componets/images/logo.jpg';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -89,21 +90,27 @@ export const Showallorders = () => {
     }
   };
 
-  const generateInvoicePDF = (order) => {
+  const generateInvoicePDF = async (order) => {
+    // 1. Load the logo image
+    const img = new Image();
+    img.src = logoImg;
+    await new Promise((resolve) => {
+      img.onload = resolve;
+      img.onerror = resolve;
+    });
+
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
 
     // Header / Brand
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.setTextColor(216, 117, 219); // Brand pinkish color
-    doc.text("Muthu's Petals", 14, 20);
+    // Add Logo (x: 14, y: 15, width: 20, height: 20)
+    doc.addImage(img, 'JPEG', 14, 15, 20, 20);
 
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.setFont("helvetica", "normal");
-    doc.text("Premium Organic Care", 14, 26);
-    doc.text("www.muthus-petals.com", 14, 31);
+    doc.text("Premium Organic Care", 38, 25);
+    doc.text("www.muthuspetals.com", 38, 30);
 
     // Invoice Title
     doc.setFontSize(20);
@@ -131,9 +138,9 @@ export const Showallorders = () => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(80, 80, 80);
-    doc.text(order.name, 14, 62);
-    doc.text(order.email, 14, 67);
-    doc.text(order.phone, 14, 72);
+    doc.text(order.name || 'Unknown', 14, 62);
+    doc.text(order.email || '', 14, 67);
+    doc.text(order.phone || '', 14, 72);
 
     doc.setFont("helvetica", "bold");
     doc.setTextColor(40, 40, 40);
@@ -141,24 +148,24 @@ export const Showallorders = () => {
 
     doc.setFont("helvetica", "normal");
     doc.setTextColor(80, 80, 80);
-    const splitAddress = doc.splitTextToSize(`${order.address}, ${order.city} - ${order.pin}, ${order.country}`, 80);
+    const splitAddress = doc.splitTextToSize(`${order.address || ''}, ${order.city || ''} - ${order.pin || ''}, ${order.country || ''}`, 80);
     doc.text(splitAddress, pageWidth / 2, 62);
 
     // Items Table
     const tableColumn = ["Product", "Qty", "Price", "Total"];
     const tableRows = [];
 
-    order.orderItems.forEach(item => {
+    (order.orderItems || []).forEach(item => {
       const rowData = [
-        item.name,
-        item.quantity.toString(),
-        `Rs ${item.price}`,
-        `Rs ${item.price * item.quantity}`
+        item.name || 'Product',
+        (item.quantity || 1).toString(),
+        `Rs ${item.price || 0}`,
+        `Rs ${(item.price || 0) * (item.quantity || 1)}`
       ];
       tableRows.push(rowData);
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 90,
       head: [tableColumn],
       body: tableRows,
@@ -174,7 +181,7 @@ export const Showallorders = () => {
     });
 
     // Totals
-    const finalY = doc.lastAutoTable.finalY + 10;
+    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 120;
     
     doc.setFontSize(10);
     doc.setTextColor(60, 60, 60);
@@ -186,19 +193,6 @@ export const Showallorders = () => {
     doc.setTextColor(40, 40, 40);
     doc.text("Grand Total:", pageWidth - 50, finalY + 8, { align: "right" });
     doc.text(`Rs ${order.totalprice || 0}`, pageWidth - 14, finalY + 8, { align: "right" });
-
-    // Payment Status Stamp
-    doc.setFontSize(14);
-    if (order.paymentStatus === 'PAID') {
-      doc.setTextColor(16, 185, 129); // Green
-      doc.text("PAID", 14, finalY + 8);
-    } else if (order.paymentStatus === 'FAILED') {
-      doc.setTextColor(239, 68, 68); // Red
-      doc.text("FAILED", 14, finalY + 8);
-    } else {
-      doc.setTextColor(234, 179, 8); // Yellow
-      doc.text("PENDING / COD", 14, finalY + 8);
-    }
 
     // Footer note
     doc.setFontSize(9);

@@ -5,7 +5,7 @@ import { messaging } from "../utils/firebaseAdmin.js";
 
 export const createorder = async (req, res, next) => {
   try {
-    const { name, address, email, city, country, phone, pin, cartData, shippingCharge, total, razorpay_order_id, razorpay_payment_id, paymentStatus } = req.body;
+    const { name, address, email, city, country, phone, pin, cartData, shippingCharge, total, razorpay_order_id, razorpay_payment_id, paymentStatus, orderId, paymentId } = req.body;
 
     const orderItems = cartData ? cartData.map(item => ({
       name: item.name,
@@ -27,9 +27,9 @@ export const createorder = async (req, res, next) => {
       orderItems,
       shippingCharge: shippingCharge || 0,
       totalprice: total || 0,
-      razorpay_order_id,
-      razorpay_payment_id,
-      paymentStatus: paymentStatus || 'Pending'
+      razorpay_order_id: razorpay_order_id || orderId,
+      razorpay_payment_id: razorpay_payment_id || paymentId,
+      paymentStatus: (paymentStatus && paymentStatus.toUpperCase() === 'PAID') ? 'PAID' : (paymentStatus || 'Pending')
     });
     res.status(200).json({
       success: true,
