@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import './showorders.css';
 import AdminNavbar from '../AdminNavbar';
 
@@ -85,6 +87,126 @@ export const Showallorders = () => {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const generateInvoicePDF = (order) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+
+    // Header / Brand
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(216, 117, 219); // Brand pinkish color
+    doc.text("Muthu's Petals", 14, 20);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "normal");
+    doc.text("Premium Organic Care", 14, 26);
+    doc.text("www.muthus-petals.com", 14, 31);
+
+    // Invoice Title
+    doc.setFontSize(20);
+    doc.setTextColor(40, 40, 40);
+    doc.setFont("helvetica", "bold");
+    doc.text("INVOICE", pageWidth - 14, 25, { align: "right" });
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, pageWidth - 14, 32, { align: "right" });
+    if (order.razorpay_payment_id) {
+      doc.text(`Payment Ref: ${order.razorpay_payment_id}`, pageWidth - 14, 37, { align: "right" });
+    }
+
+    // Line separator
+    doc.setDrawColor(230, 230, 230);
+    doc.line(14, 48, pageWidth - 14, 48);
+
+    // Customer & Shipping Info
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(40, 40, 40);
+    doc.text("Bill To:", 14, 56);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(80, 80, 80);
+    doc.text(order.name, 14, 62);
+    doc.text(order.email, 14, 67);
+    doc.text(order.phone, 14, 72);
+
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(40, 40, 40);
+    doc.text("Ship To:", pageWidth / 2, 56);
+
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(80, 80, 80);
+    const splitAddress = doc.splitTextToSize(`${order.address}, ${order.city} - ${order.pin}, ${order.country}`, 80);
+    doc.text(splitAddress, pageWidth / 2, 62);
+
+    // Items Table
+    const tableColumn = ["Product", "Qty", "Price", "Total"];
+    const tableRows = [];
+
+    order.orderItems.forEach(item => {
+      const rowData = [
+        item.name,
+        item.quantity.toString(),
+        `Rs ${item.price}`,
+        `Rs ${item.price * item.quantity}`
+      ];
+      tableRows.push(rowData);
+    });
+
+    doc.autoTable({
+      startY: 90,
+      head: [tableColumn],
+      body: tableRows,
+      theme: 'grid',
+      headStyles: { fillColor: [40, 40, 45], textColor: 255 },
+      styles: { fontSize: 9, cellPadding: 4 },
+      columnStyles: {
+        0: { cellWidth: 90 },
+        1: { halign: 'center' },
+        2: { halign: 'right' },
+        3: { halign: 'right' }
+      }
+    });
+
+    // Totals
+    const finalY = doc.lastAutoTable.finalY + 10;
+    
+    doc.setFontSize(10);
+    doc.setTextColor(60, 60, 60);
+    doc.text("Shipping Charge:", pageWidth - 50, finalY, { align: "right" });
+    doc.text(`Rs ${order.shippingCharge || 0}`, pageWidth - 14, finalY, { align: "right" });
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(40, 40, 40);
+    doc.text("Grand Total:", pageWidth - 50, finalY + 8, { align: "right" });
+    doc.text(`Rs ${order.totalprice || 0}`, pageWidth - 14, finalY + 8, { align: "right" });
+
+    // Payment Status Stamp
+    doc.setFontSize(14);
+    if (order.paymentStatus === 'PAID') {
+      doc.setTextColor(16, 185, 129); // Green
+      doc.text("PAID", 14, finalY + 8);
+    } else if (order.paymentStatus === 'FAILED') {
+      doc.setTextColor(239, 68, 68); // Red
+      doc.text("FAILED", 14, finalY + 8);
+    } else {
+      doc.setTextColor(234, 179, 8); // Yellow
+      doc.text("PENDING / COD", 14, finalY + 8);
+    }
+
+    // Footer note
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(150, 150, 150);
+    doc.text("Thank you for shopping with Muthu's Petals!", pageWidth / 2, doc.internal.pageSize.height - 15, { align: "center" });
+
+    doc.save(`Invoice_${order._id}.pdf`);
   };
 
   const filtered = orders.filter(order => {
@@ -259,6 +381,9 @@ export const Showallorders = () => {
                     <option value="Shipped">Shipped</option>
                     <option value="Delivered">Delivered</option>
                   </select>
+                  <button className="so-btn-primary" onClick={() => generateInvoicePDF(order)} style={{ background: 'transparent', color: '#a78bfa', border: '1px solid #a78bfa', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, marginLeft: '8px' }}>
+                    PDF Invoice
+                  </button>
                   <button className="so-del-btn" onClick={() => setDeletingId(order._id)}>
                     Delete
                   </button>
