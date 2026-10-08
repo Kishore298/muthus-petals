@@ -72,7 +72,7 @@ export const paymentWebhook = async (req, res) => {
 
     const expectedSignature = crypto
       .createHmac('sha256', secret)
-      .update(req.body) // req.body is a raw Buffer because of express.raw
+      .update(req.rawBody || req.body) // req.rawBody is captured via express.json verify
       .digest('hex');
 
     const isValid = crypto.timingSafeEqual(
@@ -88,7 +88,7 @@ export const paymentWebhook = async (req, res) => {
       });
     }
 
-    const event = JSON.parse(req.body.toString());
+    const event = Buffer.isBuffer(req.body) ? JSON.parse(req.body.toString()) : req.body;
     console.log('Razorpay webhook:', event.event);
 
     switch (event.event) {

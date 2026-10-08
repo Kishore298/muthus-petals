@@ -22,10 +22,11 @@ dotenv.config();
 
 const app = express();
 
-// Razorpay webhook must receive raw body for signature verification
-app.post('/api/v1/payment/payment-webhook', express.raw({ type: 'application/json' }), paymentWebhook);
-
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 app.use(cookieParser());
 app.use(cors());
 

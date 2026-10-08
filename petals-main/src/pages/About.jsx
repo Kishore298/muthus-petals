@@ -55,7 +55,7 @@ const About = () => {
 
               <img
                 src={founderimg}
-                alt="Muthu — Founder of Muthus Petals"
+                alt="Muthu — Founder of Muthu's Petals"
                 className="ab__founder-img"
               />
 
@@ -83,7 +83,7 @@ const About = () => {
             </div>
 
             <h1 className="ab__heading fade-up" ref={ref(2)} style={{ "--delay": "0.12s" }}>
-              Welcome to<br /><em>Muthus Petals</em>
+              Welcome to<br /><em>Muthu's Petals</em>
             </h1>
 
             <div className="ab__divider fade-up" ref={ref(3)} style={{ "--delay": "0.2s" }}>
@@ -99,7 +99,7 @@ const About = () => {
             </p>
 
             <p className="ab__text fade-up" ref={ref(5)} style={{ "--delay": "0.36s" }}>
-              At Muthus Petals, we infuse nature's essence into our cosmetics, crafting
+              At Muthu's Petals, we infuse nature's essence into our cosmetics, crafting
               gentle, effective formulas that bloom with every use. Let the soft touch of
               petals soothe your skin, and the sweet scent of nature uplift your senses.
             </p>

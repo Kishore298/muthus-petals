@@ -81,7 +81,7 @@ export default function Banner() {
           </h1>
 
           <p className="bn-sub">
-            At Muthus Petals, we believe in simple, honest beauty.
+            At Muthu's Petals, we believe in simple, honest beauty.
             Experience gentle, toxin-free skincare and haircare crafted
             from nature to nourish your skin, strengthen your hair,
             and bring out your natural glow.

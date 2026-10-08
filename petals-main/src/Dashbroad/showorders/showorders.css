@@ -74,7 +74,7 @@ body { font-family: 'DM Sans', sans-serif; background: #0f0f14; color: #f1f1f6; 
   border-radius: 20px; overflow: hidden; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
-.so-card:hover { border-color: rgba(216, 117, 219, 0.4); transform: translateY(-4px); box-shadow: 0 15px 35px rgba(216, 117, 219, 0.1); }
+.so-card:hover { border-color: rgba(216, 117, 219, 0.4); box-shadow: 0 15px 35px rgba(216, 117, 219, 0.1); }
 
 .so-card-head {
   display: flex; align-items: center; justify-content: space-between;
