@@ -27,6 +27,11 @@ export const Showallorders = () => {
   
   // Modal state
   const [deletingId, setDeletingId] = useState(null);
+  
+  // Bulk Print State
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [selectedBulkIds, setSelectedBulkIds] = useState([]);
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   const fetchOrders = async () => {
     try {
@@ -88,6 +93,185 @@ export const Showallorders = () => {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const generateBulkA4PDF = async (selectedIds) => {
+    const selectedOrders = orders.filter(o => selectedIds.includes(o._id));
+    if (selectedOrders.length === 0) {
+      toast.error("No orders selected!");
+      return;
+    }
+
+    const img = new Image();
+    img.src = logoImg;
+    await new Promise((resolve) => { img.onload = resolve; img.onerror = resolve; });
+
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const receiptWidth = 105;
+    const receiptHeight = 148.5;
+    const margin = 5;
+
+    selectedOrders.forEach((order, i) => {
+      if (i > 0 && i % 4 === 0) doc.addPage();
+
+      const quadrantIndex = i % 4;
+      const offsetX = (quadrantIndex % 2) * receiptWidth;
+      const offsetY = Math.floor(quadrantIndex / 2) * receiptHeight;
+      let currentY = offsetY + 8;
+      const centerX = offsetX + (receiptWidth / 2);
+
+      // 1. Centered Brand Header
+      // Logo (width 12, height 12) centered
+      doc.addImage(img, 'JPEG', centerX - 6, currentY, 12, 12);
+      currentY += 16;
+      
+      // Brand Name
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(91, 33, 182); // deep plum/purple
+      doc.text("Muthu's Petals", centerX, currentY, { align: "center" });
+      
+      currentY += 5;
+      // Tagline
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Premium Organic Care", centerX, currentY, { align: "center" });
+      
+      currentY += 4;
+      // Website
+      doc.setFontSize(7);
+      doc.setTextColor(120, 120, 120);
+      doc.text("www.muthuspetals.com", centerX, currentY, { align: "center" });
+
+      currentY += 8;
+
+      // 2. Receipt Title
+      doc.setFontSize(11);
+      doc.setTextColor(40, 40, 40);
+      doc.setFont("helvetica", "bold");
+      doc.text("ORDER RECEIPT", centerX, currentY, { align: "center" });
+      
+      currentY += 5;
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      
+      // Date format: DD/MM/YYYY
+      const dateObj = new Date(order.createdAt);
+      const formattedDate = `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getFullYear()}`;
+      
+      doc.text(`Date: ${formattedDate}`, centerX, currentY, { align: "center" });
+      
+      if (order.razorpay_payment_id) {
+        currentY += 4;
+        doc.text(`Ref: ${order.razorpay_payment_id}`, centerX, currentY, { align: "center" });
+      }
+
+      currentY += 5;
+
+      // 3. Customer Shipping Details
+      // Light background for Ship To
+      const shipToMargin = margin + 2;
+      doc.setFillColor(250, 250, 250);
+      
+      // Calculate address block height
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      const addressString = `${order.address || ''}, ${order.city || ''} - ${order.pin || ''}`;
+      const splitAddress = doc.splitTextToSize(addressString, receiptWidth - (shipToMargin * 2) - 4);
+      
+      // "SHIP TO" (4), Name (4), Phone (4), Address lines (4 * length)
+      const shipToHeight = 18 + (splitAddress.length * 4);
+      doc.rect(offsetX + margin, currentY, receiptWidth - (margin * 2), shipToHeight, "F");
+
+      let shipY = currentY + 6;
+      
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(91, 33, 182); // deep plum/purple
+      doc.text("SHIP TO", offsetX + shipToMargin, shipY);
+      
+      shipY += 5;
+      doc.setFontSize(8);
+      doc.setTextColor(40, 40, 40);
+      doc.text(order.name || 'Unknown', offsetX + shipToMargin, shipY);
+      
+      shipY += 4;
+      doc.setFont("helvetica", "normal");
+      doc.text(order.phone || '', offsetX + shipToMargin, shipY);
+      
+      shipY += 4;
+      doc.text(splitAddress, offsetX + shipToMargin, shipY);
+      
+      currentY += shipToHeight + 6;
+
+      const tableColumn = ["Item", "Qty", "Total"];
+      const tableRows = [];
+      (order.orderItems || []).forEach(item => {
+        tableRows.push([
+          item.name || 'Product',
+          (item.quantity || 1).toString(),
+          `Rs. ${(item.price || 0) * (item.quantity || 1)}`
+        ]);
+      });
+
+      autoTable(doc, {
+        startY: currentY,
+        margin: { left: offsetX + margin, right: 210 - (offsetX + receiptWidth) + margin },
+        head: [tableColumn],
+        body: tableRows,
+        theme: 'plain',
+        headStyles: { fillColor: [243, 244, 246], textColor: [91, 33, 182], fontStyle: 'bold' },
+        styles: { fontSize: 7, cellPadding: 2, overflow: 'linebreak' },
+        columnStyles: {
+          0: { cellWidth: 55 },
+          1: { cellWidth: 15, halign: 'center' },
+          2: { cellWidth: 25, halign: 'right' }
+        },
+        didParseCell: function (data) {
+          if (data.section === 'head') {
+            if (data.column.index === 1) data.cell.styles.halign = 'center';
+            if (data.column.index === 2) data.cell.styles.halign = 'right';
+          }
+        }
+      });
+
+      let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : currentY + 10;
+      
+      // 5. Shipping Charges and Grand Total
+      doc.setFontSize(8);
+      doc.setTextColor(80, 80, 80);
+      
+      doc.text("Shipping:", offsetX + receiptWidth - 30, finalY);
+      doc.text(`Rs. ${order.shippingCharge || 0}`, offsetX + receiptWidth - margin, finalY, { align: "right" });
+      
+      finalY += 3;
+      // Thin divider above grand total
+      doc.setDrawColor(220, 220, 220);
+      doc.setLineWidth(0.3);
+      doc.line(offsetX + receiptWidth - 40, finalY, offsetX + receiptWidth - margin, finalY);
+      
+      finalY += 5;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(40, 40, 40);
+      doc.text("Grand Total:", offsetX + receiptWidth - 35, finalY);
+      doc.text(`Rs. ${order.totalprice || 0}`, offsetX + receiptWidth - margin, finalY, { align: "right" });
+
+      // Separator lines
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineDashPattern([2, 2], 0);
+      if (quadrantIndex % 2 === 0) {
+        doc.line(105, offsetY, 105, offsetY + receiptHeight);
+      }
+      if (quadrantIndex < 2) {
+        doc.line(offsetX, 148.5, offsetX + receiptWidth, 148.5);
+      }
+      doc.setLineDashPattern([], 0);
+    });
+
+    doc.save(`Bulk_Receipts_A4.pdf`);
+    setShowBulkModal(false);
   };
 
   const generateInvoicePDF = async (order) => {
@@ -257,8 +441,9 @@ export const Showallorders = () => {
     <AdminNavbar />
     <div className="so-page">
       <div style={{ maxWidth: '850px', margin: '0 auto', width: '100%' }}>
-      <div className="so-header">
+      <div className="so-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>📋 Order Management</h1>
+        <button onClick={() => setShowBulkModal(true)} style={{ background: '#d875db', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>Bulk Print A4</button>
       </div>
 
       {/* Stats */}
@@ -416,6 +601,61 @@ export const Showallorders = () => {
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button onClick={() => setDeletingId(null)} style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.05)', color: '#9898b3', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
               <button onClick={handleDelete} style={{ padding: '10px 24px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showBulkModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px' }} onClick={() => setShowBulkModal(false)}>
+          <div style={{ background: '#1a1a24', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', width: '100%', maxWidth: '800px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ color: '#fff', margin: 0, fontSize: '18px' }}>Select Orders for Bulk Print</h2>
+              <button onClick={() => setShowBulkModal(false)} style={{ background: 'transparent', border: 'none', color: '#9898b3', fontSize: 24, cursor: 'pointer' }}>×</button>
+            </div>
+            
+            <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>
+              <div style={{ marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button onClick={() => setSelectedBulkIds(orders.map(o => o._id))} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>Select All</button>
+                <button onClick={() => setSelectedBulkIds([])} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>Clear All</button>
+                <span style={{ color: '#a78bfa', fontSize: '14px', marginLeft: 'auto' }}>{selectedBulkIds.length} Selected</span>
+              </div>
+              
+              {orders.map(order => (
+                <div key={order._id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', marginBottom: '10px', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '14px 16px', cursor: 'pointer', background: selectedBulkIds.includes(order._id) ? 'rgba(216, 117, 219, 0.1)' : 'transparent' }} onClick={() => setExpandedOrderId(expandedOrderId === order._id ? null : order._id)}>
+                    <input 
+                      type="checkbox" 
+                      style={{ marginRight: '16px', width: '18px', height: '18px', cursor: 'pointer' }}
+                      checked={selectedBulkIds.includes(order._id)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        if (e.target.checked) setSelectedBulkIds([...selectedBulkIds, order._id]);
+                        else setSelectedBulkIds(selectedBulkIds.filter(id => id !== order._id));
+                      }}
+                    />
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <span style={{ color: '#fff', fontWeight: 600, display: 'block' }}>{order.name}</span>
+                        <span style={{ color: '#888', fontSize: '12px' }}>{new Date(order.createdAt).toLocaleDateString()} | {order._id.substring(0,8)}...</span>
+                      </div>
+                      {STATUS_BADGE(order.orderStatus)}
+                    </div>
+                  </div>
+                  
+                  {expandedOrderId === order._id && (
+                    <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)', fontSize: '13px', color: '#ccc' }}>
+                      <p style={{ margin: '0 0 8px' }}><strong>Address:</strong> {order.address}, {order.city} - {order.pin}</p>
+                      <p style={{ margin: '0 0 8px' }}><strong>Phone:</strong> {order.phone}</p>
+                      <p style={{ margin: '0' }}><strong>Items:</strong> {order.orderItems?.map(i => `${i.name} (x${i.quantity})`).join(', ')}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            <div style={{ padding: '20px 24px', borderTop: '1px solid rgba(255,255,255,0.05)', background: '#14141d', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button onClick={() => setShowBulkModal(false)} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+              <button onClick={() => generateBulkA4PDF(selectedBulkIds)} disabled={selectedBulkIds.length === 0} style={{ padding: '10px 20px', background: selectedBulkIds.length > 0 ? '#d875db' : '#555', color: '#fff', border: 'none', borderRadius: '8px', cursor: selectedBulkIds.length > 0 ? 'pointer' : 'not-allowed', fontWeight: 600 }}>Download PDF</button>
             </div>
           </div>
         </div>

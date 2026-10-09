@@ -1,5 +1,6 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import Navbar from "./componets/Navbar/Navbar.jsx";
 import ScrollToTop from "./componets/ScrollToTop";
 import { ToastContainer } from "react-toastify";
@@ -67,6 +68,21 @@ const Layout = ({ children }) => {
   );
 };
 
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("tokens");
+  if (!token) return <Navigate to="/login" replace />;
+  try {
+    const decoded = jwtDecode(token);
+    if (decoded.exp * 1000 < Date.now()) {
+      localStorage.removeItem("tokens");
+      return <Navigate to="/login" replace />;
+    }
+  } catch (err) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
 function App() {
   return (
     <BrowserRouter>
@@ -105,25 +121,25 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
 
-          <Route path="/dashboard" element={<Dashbroad />} />
-          <Route path="/createproduct" element={<Createproducts />} />
-          <Route path="/showallproducts" element={<Showallproducts />} />
-          <Route path="/showallorders" element={<Showallorders />} />
-          <Route path="/products/update/:id" element={<Updateproducts />} />
-          <Route path="/products/delete/:id" element={<Deletedproducts />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashbroad /></ProtectedRoute>} />
+          <Route path="/createproduct" element={<ProtectedRoute><Createproducts /></ProtectedRoute>} />
+          <Route path="/showallproducts" element={<ProtectedRoute><Showallproducts /></ProtectedRoute>} />
+          <Route path="/showallorders" element={<ProtectedRoute><Showallorders /></ProtectedRoute>} />
+          <Route path="/products/update/:id" element={<ProtectedRoute><Updateproducts /></ProtectedRoute>} />
+          <Route path="/products/delete/:id" element={<ProtectedRoute><Deletedproducts /></ProtectedRoute>} />
           <Route path="/cart" element={<Cart />} />
 
           <Route path="/testimonial" element={<Testamonial />} />
-          <Route path="/createtestimonial" element={<Createtestimonial />} />
-          <Route path="/Showalltestimonial" element={<Showalltestimonial />} />
-          <Route path="/deleteTestimonail/:id" element={<Deletedtestimonial />} />
+          <Route path="/createtestimonial" element={<ProtectedRoute><Createtestimonial /></ProtectedRoute>} />
+          <Route path="/Showalltestimonial" element={<ProtectedRoute><Showalltestimonial /></ProtectedRoute>} />
+          <Route path="/deleteTestimonail/:id" element={<ProtectedRoute><Deletedtestimonial /></ProtectedRoute>} />
 
           <Route path="/ingredients" element={<Ingredients />} />
 
 
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/galleryreview" element={<ReviewGallery />} />
-          <Route path="/creategallery" element={<Creategallery />} />
+          <Route path="/creategallery" element={<ProtectedRoute><Creategallery /></ProtectedRoute>} />
         </Routes>
       </Layout>
     </BrowserRouter>
