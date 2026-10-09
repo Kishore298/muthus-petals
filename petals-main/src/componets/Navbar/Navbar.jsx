@@ -204,8 +204,30 @@ export default function Navbar({ cartCount = 0 }) {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [localCartCount, setLocalCartCount] = useState(cartCount);
   const drawerRef = useRef(null);
   const searchRef = useRef(null);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      try {
+        const stored = localStorage.getItem("cart");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const count = parsed.reduce((acc, item) => acc + (item.quantity || 1), 0);
+          setLocalCartCount(count);
+        } else {
+          setLocalCartCount(0);
+        }
+      } catch (e) {
+        setLocalCartCount(0);
+      }
+    };
+    
+    updateCartCount();
+    const interval = setInterval(updateCartCount, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("tokens");
@@ -305,10 +327,10 @@ export default function Navbar({ cartCount = 0 }) {
                 Login
               </Link>
             )}
-            <Link to="/cart" className="icon-btn cart-btn" aria-label={`Cart, ${cartCount} items`}>
+            <Link to="/cart" className="icon-btn cart-btn" aria-label={`Cart, ${localCartCount} items`}>
               <IconBag />
-              {cartCount > 0 && (
-                <span className="cart-badge" aria-hidden="true">{cartCount}</span>
+              {localCartCount > 0 && (
+                <span className="cart-badge" aria-hidden="true">{localCartCount}</span>
               )}
             </Link>
           </div>

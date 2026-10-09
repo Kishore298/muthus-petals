@@ -29,7 +29,7 @@ export const getShippingByPin = async (pin) => {
 
       // ── Tamil Nadu ──
       if (state === "tamil nadu" || state === "tamilnadu") {
-        if (district === "chennai") {
+        if (district === "chennai" || cleaned.startsWith("600")) {
           return { charge: 50, zone: `Chennai (${name})` };
         }
         return { charge: 90, zone: `Tamil Nadu (${name})` };

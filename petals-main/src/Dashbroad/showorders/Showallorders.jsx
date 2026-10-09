@@ -143,7 +143,11 @@ export const Showallorders = () => {
       doc.setFontSize(7);
       doc.setTextColor(120, 120, 120);
       doc.text("www.muthuspetals.com", centerX, currentY, { align: "center" });
-
+      
+      currentY += 3.5;
+      // Address and Phone
+      doc.setFontSize(6.5);
+      doc.text("Kolathur, Chennai - 600099 | Ph: +91 6381181527", centerX, currentY, { align: "center" });
       currentY += 8;
 
       // 2. Receipt Title

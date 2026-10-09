@@ -309,7 +309,7 @@
 
 /* ─── Stars ─── */
 .ts-rating-row {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 5px;
   margin-bottom: 10px;
@@ -358,7 +358,7 @@
 }
 
 .ts-price-org {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: var(--ts-ink);
