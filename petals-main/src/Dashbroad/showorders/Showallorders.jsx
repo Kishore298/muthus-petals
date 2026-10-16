@@ -109,7 +109,10 @@ export const Showallorders = () => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const receiptWidth = 105;
     const receiptHeight = 148.5;
-    const margin = 5;
+    const invoiceWidth = 80;
+    const invoiceHeight = 138;
+    const innerPadding = 3.5;
+    const contentWidth = invoiceWidth - (innerPadding * 2); // 73mm
 
     selectedOrders.forEach((order, i) => {
       if (i > 0 && i % 4 === 0) doc.addPage();
@@ -117,47 +120,66 @@ export const Showallorders = () => {
       const quadrantIndex = i % 4;
       const offsetX = (quadrantIndex % 2) * receiptWidth;
       const offsetY = Math.floor(quadrantIndex / 2) * receiptHeight;
-      let currentY = offsetY + 8;
       const centerX = offsetX + (receiptWidth / 2);
 
+      // 80mm invoice bounding box (centered within 105mm x 148.5mm quadrant)
+      const boxX = offsetX + (receiptWidth - invoiceWidth) / 2;
+      const boxY = offsetY + (receiptHeight - invoiceHeight) / 2;
+      const contentLeft = boxX + innerPadding;
+      const contentRight = contentLeft + contentWidth;
+
+      // Draw dashed cut guide border around each 80mm invoice
+      doc.setDrawColor(180, 180, 180);
+      doc.setLineWidth(0.3);
+      doc.setLineDashPattern([2, 2], 0);
+      doc.rect(boxX, boxY, invoiceWidth, invoiceHeight);
+      doc.setLineDashPattern([], 0);
+
+      let currentY = boxY + 5;
+
       // 1. Centered Brand Header
-      // Logo (width 12, height 12) centered
-      doc.addImage(img, 'JPEG', centerX - 6, currentY, 12, 12);
-      currentY += 16;
+      // Logo (width 10, height 10) centered
+      doc.addImage(img, 'JPEG', centerX - 5, currentY, 10, 10);
+      currentY += 13.5;
       
       // Brand Name
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
+      doc.setFontSize(12);
       doc.setTextColor(91, 33, 182); // deep plum/purple
       doc.text("Muthu's Petals", centerX, currentY, { align: "center" });
       
-      currentY += 5;
+      currentY += 4;
       // Tagline
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
+      doc.setFontSize(7);
       doc.setTextColor(100, 100, 100);
       doc.text("Premium Organic Care", centerX, currentY, { align: "center" });
       
-      currentY += 4;
-      // Website
-      doc.setFontSize(7);
-      doc.setTextColor(120, 120, 120);
-      doc.text("www.muthuspetals.com", centerX, currentY, { align: "center" });
-      
       currentY += 3.5;
-      // Address and Phone
-      doc.setFontSize(6.5);
-      doc.text("Kolathur, Chennai - 600099 | Ph: +91 6381181527", centerX, currentY, { align: "center" });
-      currentY += 8;
+      // Store Address (From Address)
+      doc.setFontSize(5.8);
+      doc.setTextColor(90, 90, 90);
+      const fromAddressText = "No: 27, 2nd Street Thirupathi thangavel Nagar, Kolathur, Chennai - 600099";
+      const splitFromAddress = doc.splitTextToSize(fromAddressText, contentWidth);
+      splitFromAddress.forEach(line => {
+        doc.text(line, centerX, currentY, { align: "center" });
+        currentY += 2.8;
+      });
+      
+      // Contact & Website
+      doc.setFontSize(5.8);
+      doc.setTextColor(100, 100, 100);
+      doc.text("WhatsApp / Call: 6381181527  |  www.muthuspetals.com", centerX, currentY, { align: "center" });
+      currentY += 5.5;
 
       // 2. Receipt Title
-      doc.setFontSize(11);
+      doc.setFontSize(10);
       doc.setTextColor(40, 40, 40);
       doc.setFont("helvetica", "bold");
       doc.text("ORDER RECEIPT", centerX, currentY, { align: "center" });
       
-      currentY += 5;
-      doc.setFontSize(8);
+      currentY += 4;
+      doc.setFontSize(7.5);
       doc.setFont("helvetica", "normal");
       
       // Date format: DD/MM/YYYY
@@ -167,47 +189,42 @@ export const Showallorders = () => {
       doc.text(`Date: ${formattedDate}`, centerX, currentY, { align: "center" });
       
       if (order.razorpay_payment_id) {
-        currentY += 4;
+        currentY += 3.5;
         doc.text(`Ref: ${order.razorpay_payment_id}`, centerX, currentY, { align: "center" });
       }
 
-      currentY += 5;
+      currentY += 4;
 
       // 3. Customer Shipping Details
-      // Light background for Ship To
-      const shipToMargin = margin + 2;
       doc.setFillColor(250, 250, 250);
-      
-      // Calculate address block height
-      doc.setFontSize(8);
+      doc.setFontSize(7.5);
       doc.setFont("helvetica", "normal");
       const addressString = `${order.address || ''}, ${order.city || ''} - ${order.pin || ''}`;
-      const splitAddress = doc.splitTextToSize(addressString, receiptWidth - (shipToMargin * 2) - 4);
+      const splitAddress = doc.splitTextToSize(addressString, contentWidth - 4);
       
-      // "SHIP TO" (4), Name (4), Phone (4), Address lines (4 * length)
-      const shipToHeight = 18 + (splitAddress.length * 4);
-      doc.rect(offsetX + margin, currentY, receiptWidth - (margin * 2), shipToHeight, "F");
+      const shipToHeight = 15 + (splitAddress.length * 3.5);
+      doc.rect(contentLeft, currentY, contentWidth, shipToHeight, "F");
 
-      let shipY = currentY + 6;
+      let shipY = currentY + 4.5;
       
-      doc.setFontSize(7);
+      doc.setFontSize(6.8);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(91, 33, 182); // deep plum/purple
-      doc.text("SHIP TO", offsetX + shipToMargin, shipY);
+      doc.text("SHIP TO", contentLeft + 2, shipY);
       
-      shipY += 5;
-      doc.setFontSize(8);
+      shipY += 4;
+      doc.setFontSize(7.5);
       doc.setTextColor(40, 40, 40);
-      doc.text(order.name || 'Unknown', offsetX + shipToMargin, shipY);
+      doc.text(order.name || 'Unknown', contentLeft + 2, shipY);
       
-      shipY += 4;
+      shipY += 3.5;
       doc.setFont("helvetica", "normal");
-      doc.text(order.phone || '', offsetX + shipToMargin, shipY);
+      doc.text(order.phone || '', contentLeft + 2, shipY);
       
-      shipY += 4;
-      doc.text(splitAddress, offsetX + shipToMargin, shipY);
+      shipY += 3.5;
+      doc.text(splitAddress, contentLeft + 2, shipY);
       
-      currentY += shipToHeight + 6;
+      currentY += shipToHeight + 4;
 
       const tableColumn = ["Item", "Qty", "Total"];
       const tableRows = [];
@@ -221,16 +238,16 @@ export const Showallorders = () => {
 
       autoTable(doc, {
         startY: currentY,
-        margin: { left: offsetX + margin, right: 210 - (offsetX + receiptWidth) + margin },
+        margin: { left: contentLeft, right: 210 - contentRight },
         head: [tableColumn],
         body: tableRows,
         theme: 'plain',
         headStyles: { fillColor: [243, 244, 246], textColor: [91, 33, 182], fontStyle: 'bold' },
-        styles: { fontSize: 7, cellPadding: 2, overflow: 'linebreak' },
+        styles: { fontSize: 6.8, cellPadding: 1.8, overflow: 'linebreak' },
         columnStyles: {
-          0: { cellWidth: 55 },
-          1: { cellWidth: 15, halign: 'center' },
-          2: { cellWidth: 25, halign: 'right' }
+          0: { cellWidth: 44 },
+          1: { cellWidth: 11, halign: 'center' },
+          2: { cellWidth: 18, halign: 'right' }
         },
         didParseCell: function (data) {
           if (data.section === 'head') {
@@ -240,31 +257,32 @@ export const Showallorders = () => {
         }
       });
 
-      let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 4 : currentY + 10;
+      let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 3.5 : currentY + 8;
       
       // 5. Shipping Charges and Grand Total
-      doc.setFontSize(8);
+      doc.setFontSize(7.5);
       doc.setTextColor(80, 80, 80);
       
-      doc.text("Shipping:", offsetX + receiptWidth - 30, finalY);
-      doc.text(`Rs. ${order.shippingCharge || 0}`, offsetX + receiptWidth - margin, finalY, { align: "right" });
+      doc.text("Shipping:", contentRight - 28, finalY);
+      doc.text(`Rs. ${order.shippingCharge || 0}`, contentRight, finalY, { align: "right" });
       
-      finalY += 3;
+      finalY += 2.5;
       // Thin divider above grand total
       doc.setDrawColor(220, 220, 220);
       doc.setLineWidth(0.3);
-      doc.line(offsetX + receiptWidth - 40, finalY, offsetX + receiptWidth - margin, finalY);
+      doc.line(contentRight - 36, finalY, contentRight, finalY);
       
-      finalY += 5;
+      finalY += 4.5;
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
+      doc.setFontSize(8.5);
       doc.setTextColor(40, 40, 40);
-      doc.text("Grand Total:", offsetX + receiptWidth - 35, finalY);
-      doc.text(`Rs. ${order.totalprice || 0}`, offsetX + receiptWidth - margin, finalY, { align: "right" });
+      doc.text("Grand Total:", contentRight - 34, finalY);
+      doc.text(`Rs. ${order.totalprice || 0}`, contentRight, finalY, { align: "right" });
 
-      // Separator lines
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineDashPattern([2, 2], 0);
+      // Subtle quadrant separator lines
+      doc.setDrawColor(225, 225, 225);
+      doc.setLineWidth(0.2);
+      doc.setLineDashPattern([3, 3], 0);
       if (quadrantIndex % 2 === 0) {
         doc.line(105, offsetY, 105, offsetY + receiptHeight);
       }
@@ -305,16 +323,22 @@ export const Showallorders = () => {
     
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.setTextColor(40, 40, 40);
-    doc.text("Muthu's Petals", 19, currentY + 4);
+    doc.setTextColor(91, 33, 182);
+    doc.text("Muthu's Petals", 19, currentY + 3.5);
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
+    doc.setFontSize(7.5);
     doc.setTextColor(100, 100, 100);
-    doc.text("Premium Organic Care", 19, currentY + 8);
-    doc.text("www.muthuspetals.com", 19, currentY + 12);
+    doc.text("Premium Organic Care", 19, currentY + 7.5);
 
-    currentY += 18;
+    doc.setFontSize(6.5);
+    doc.setTextColor(90, 90, 90);
+    doc.text("No: 27, 2nd Street Thirupathi thangavel Nagar,", 19, currentY + 11.5);
+    doc.text("Kolathur, Chennai - 600099", 19, currentY + 15);
+    doc.text("WhatsApp / Call: 6381181527", 19, currentY + 18.5);
+    doc.text("www.muthuspetals.com", 19, currentY + 22);
+
+    currentY += 27;
 
     // Receipt Title & Meta
     doc.setFontSize(14);
@@ -365,7 +389,7 @@ export const Showallorders = () => {
       const rowData = [
         item.name || 'Product',
         (item.quantity || 1).toString(),
-        `Rs ${(item.price || 0) * (item.quantity || 1)}`
+        `Rs. ${(item.price || 0) * (item.quantity || 1)}`
       ];
       tableRows.push(rowData);
     });
@@ -393,13 +417,13 @@ export const Showallorders = () => {
     doc.line(margin, finalY, pageWidth - margin, finalY);
     
     doc.text("Shipping:", pageWidth - 30, finalY + 5);
-    doc.text(`Rs ${order.shippingCharge || 0}`, pageWidth - margin, finalY + 5, { align: "right" });
+    doc.text(`Rs. ${order.shippingCharge || 0}`, pageWidth - margin, finalY + 5, { align: "right" });
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     doc.text("Total:", pageWidth - 30, finalY + 10);
-    doc.text(`Rs ${order.totalprice || 0}`, pageWidth - margin, finalY + 10, { align: "right" });
+    doc.text(`Rs. ${order.totalprice || 0}`, pageWidth - margin, finalY + 10, { align: "right" });
 
     // Footer note
     doc.setFontSize(8);
