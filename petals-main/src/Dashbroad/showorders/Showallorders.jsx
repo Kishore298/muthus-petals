@@ -110,57 +110,51 @@ export const Showallorders = () => {
     const receiptWidth = 105;
     const receiptHeight = 148.5;
     const invoiceWidth = 80;
-    const invoiceHeight = 138;
-    const innerPadding = 3.5;
-    const contentWidth = invoiceWidth - (innerPadding * 2); // 73mm
+    const splitLineMargin = 5; // 5mm margin from center vertical split line
 
     selectedOrders.forEach((order, i) => {
       if (i > 0 && i % 4 === 0) doc.addPage();
 
       const quadrantIndex = i % 4;
-      const offsetX = (quadrantIndex % 2) * receiptWidth;
-      const offsetY = Math.floor(quadrantIndex / 2) * receiptHeight;
-      const centerX = offsetX + (receiptWidth / 2);
+      const isLeftColumn = quadrantIndex % 2 === 0;
+      const isTopRow = quadrantIndex < 2;
+      const offsetY = isTopRow ? 0 : receiptHeight;
 
-      // 80mm invoice bounding box (centered within 105mm x 148.5mm quadrant)
-      const boxX = offsetX + (receiptWidth - invoiceWidth) / 2;
-      const boxY = offsetY + (receiptHeight - invoiceHeight) / 2;
-      const contentLeft = boxX + innerPadding;
-      const contentRight = contentLeft + contentWidth;
+      // Position invoice closer to the center vertical split line (x = 105mm)
+      // Left column: content ends at (105 - 5 = 100mm), starts at (100 - 80 = 20mm)
+      // Right column: content starts at (105 + 5 = 110mm), ends at (110 + 80 = 190mm)
+      const contentLeft = isLeftColumn
+        ? (105 - splitLineMargin - invoiceWidth)
+        : (105 + splitLineMargin);
+      const contentRight = contentLeft + invoiceWidth;
+      const centerX = contentLeft + (invoiceWidth / 2);
 
-      // Draw dashed cut guide border around each 80mm invoice
-      doc.setDrawColor(180, 180, 180);
-      doc.setLineWidth(0.3);
-      doc.setLineDashPattern([2, 2], 0);
-      doc.rect(boxX, boxY, invoiceWidth, invoiceHeight);
-      doc.setLineDashPattern([], 0);
-
-      let currentY = boxY + 5;
+      let currentY = offsetY + 8;
 
       // 1. Centered Brand Header
-      // Logo (width 10, height 10) centered
-      doc.addImage(img, 'JPEG', centerX - 5, currentY, 10, 10);
-      currentY += 13.5;
+      // Logo (width 11, height 11) centered
+      doc.addImage(img, 'JPEG', centerX - 5.5, currentY, 11, 11);
+      currentY += 15;
       
       // Brand Name
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
+      doc.setFontSize(12.5);
       doc.setTextColor(91, 33, 182); // deep plum/purple
       doc.text("Muthu's Petals", centerX, currentY, { align: "center" });
       
       currentY += 4;
       // Tagline
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(7);
+      doc.setFontSize(7.5);
       doc.setTextColor(100, 100, 100);
       doc.text("Premium Organic Care", centerX, currentY, { align: "center" });
       
-      currentY += 3.5;
+      currentY += 3.8;
       // Store Address (From Address)
       doc.setFontSize(5.8);
       doc.setTextColor(90, 90, 90);
       const fromAddressText = "No: 27, 2nd Street Thirupathi thangavel Nagar, Kolathur, Chennai - 600099";
-      const splitFromAddress = doc.splitTextToSize(fromAddressText, contentWidth);
+      const splitFromAddress = doc.splitTextToSize(fromAddressText, invoiceWidth);
       splitFromAddress.forEach(line => {
         doc.text(line, centerX, currentY, { align: "center" });
         currentY += 2.8;
@@ -173,7 +167,7 @@ export const Showallorders = () => {
       currentY += 5.5;
 
       // 2. Receipt Title
-      doc.setFontSize(10);
+      doc.setFontSize(10.5);
       doc.setTextColor(40, 40, 40);
       doc.setFont("helvetica", "bold");
       doc.text("ORDER RECEIPT", centerX, currentY, { align: "center" });
@@ -193,36 +187,36 @@ export const Showallorders = () => {
         doc.text(`Ref: ${order.razorpay_payment_id}`, centerX, currentY, { align: "center" });
       }
 
-      currentY += 4;
+      currentY += 4.5;
 
       // 3. Customer Shipping Details
       doc.setFillColor(250, 250, 250);
       doc.setFontSize(7.5);
       doc.setFont("helvetica", "normal");
       const addressString = `${order.address || ''}, ${order.city || ''} - ${order.pin || ''}`;
-      const splitAddress = doc.splitTextToSize(addressString, contentWidth - 4);
+      const splitAddress = doc.splitTextToSize(addressString, invoiceWidth - 5);
       
-      const shipToHeight = 15 + (splitAddress.length * 3.5);
-      doc.rect(contentLeft, currentY, contentWidth, shipToHeight, "F");
+      const shipToHeight = 15 + (splitAddress.length * 3.6);
+      doc.rect(contentLeft, currentY, invoiceWidth, shipToHeight, "F");
 
       let shipY = currentY + 4.5;
       
       doc.setFontSize(6.8);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(91, 33, 182); // deep plum/purple
-      doc.text("SHIP TO", contentLeft + 2, shipY);
+      doc.text("SHIP TO", contentLeft + 2.5, shipY);
       
       shipY += 4;
       doc.setFontSize(7.5);
       doc.setTextColor(40, 40, 40);
-      doc.text(order.name || 'Unknown', contentLeft + 2, shipY);
+      doc.text(order.name || 'Unknown', contentLeft + 2.5, shipY);
       
       shipY += 3.5;
       doc.setFont("helvetica", "normal");
-      doc.text(order.phone || '', contentLeft + 2, shipY);
+      doc.text(order.phone || '', contentLeft + 2.5, shipY);
       
       shipY += 3.5;
-      doc.text(splitAddress, contentLeft + 2, shipY);
+      doc.text(splitAddress, contentLeft + 2.5, shipY);
       
       currentY += shipToHeight + 4;
 
@@ -245,9 +239,9 @@ export const Showallorders = () => {
         headStyles: { fillColor: [243, 244, 246], textColor: [91, 33, 182], fontStyle: 'bold' },
         styles: { fontSize: 6.8, cellPadding: 1.8, overflow: 'linebreak' },
         columnStyles: {
-          0: { cellWidth: 44 },
-          1: { cellWidth: 11, halign: 'center' },
-          2: { cellWidth: 18, halign: 'right' }
+          0: { cellWidth: 48 },
+          1: { cellWidth: 12, halign: 'center' },
+          2: { cellWidth: 20, halign: 'right' }
         },
         didParseCell: function (data) {
           if (data.section === 'head') {
@@ -279,17 +273,17 @@ export const Showallorders = () => {
       doc.text("Grand Total:", contentRight - 34, finalY);
       doc.text(`Rs. ${order.totalprice || 0}`, contentRight, finalY, { align: "right" });
 
-      // Subtle quadrant separator lines
-      doc.setDrawColor(225, 225, 225);
-      doc.setLineWidth(0.2);
-      doc.setLineDashPattern([3, 3], 0);
-      if (quadrantIndex % 2 === 0) {
-        doc.line(105, offsetY, 105, offsetY + receiptHeight);
+      // Draw the two full-page split lines once per page (on the first quadrant)
+      if (quadrantIndex === 0) {
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.3);
+        doc.setLineDashPattern([2, 2], 0);
+        // Vertical split line down the center (at x = 105mm)
+        doc.line(105, 0, 105, 297);
+        // Horizontal split line across the center (at y = 148.5mm)
+        doc.line(0, 148.5, 210, 148.5);
+        doc.setLineDashPattern([], 0);
       }
-      if (quadrantIndex < 2) {
-        doc.line(offsetX, 148.5, offsetX + receiptWidth, 148.5);
-      }
-      doc.setLineDashPattern([], 0);
     });
 
     doc.save(`Bulk_Receipts_A4.pdf`);
