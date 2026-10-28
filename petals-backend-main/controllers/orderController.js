@@ -16,21 +16,46 @@ export const createorder = async (req, res, next) => {
       product: item._id
     })) : [];
 
-    const order = await Ordermodel.create({
-      name,
-      address,
-      email,
-      city,
-      country,
-      phone,
-      pin,
-      orderItems,
-      shippingCharge: shippingCharge || 0,
-      totalprice: total || 0,
-      razorpay_order_id: razorpay_order_id || orderId,
-      razorpay_payment_id: razorpay_payment_id || paymentId,
-      paymentStatus: (paymentStatus && paymentStatus.toUpperCase() === 'PAID') ? 'PAID' : (paymentStatus || 'Pending')
-    });
+    const finalOrderId = razorpay_order_id || orderId;
+    const finalPaymentId = razorpay_payment_id || paymentId;
+
+    let order;
+    if (finalOrderId) {
+      order = await Ordermodel.findOne({ razorpay_order_id: finalOrderId });
+    }
+
+    if (order) {
+      order.name = name || order.name;
+      order.address = address || order.address;
+      order.email = email || order.email;
+      order.city = city || order.city;
+      order.country = country || order.country;
+      order.phone = phone || order.phone;
+      order.pin = pin || order.pin;
+      if (orderItems.length > 0) order.orderItems = orderItems;
+      order.shippingCharge = shippingCharge || order.shippingCharge;
+      order.totalprice = total || order.totalprice;
+      order.razorpay_payment_id = finalPaymentId || order.razorpay_payment_id;
+      order.paymentStatus = 'PAID';
+      await order.save();
+    } else {
+      order = await Ordermodel.create({
+        name,
+        address,
+        email,
+        city,
+        country,
+        phone,
+        pin,
+        orderItems,
+        shippingCharge: shippingCharge || 0,
+        totalprice: total || 0,
+        razorpay_order_id: finalOrderId,
+        razorpay_payment_id: finalPaymentId,
+        paymentStatus: (paymentStatus && paymentStatus.toUpperCase() === 'PAID') ? 'PAID' : (paymentStatus || 'Pending')
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: "Order created",

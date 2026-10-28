@@ -2,6 +2,7 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 import Ordermodel from "../model/Order.js";
+import productmodel from "../model/Product.js";
 
 dotenv.config();
 
@@ -12,16 +13,17 @@ const razorpayInstance = new Razorpay({
 
 export const createPaymentOrder = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, notes } = req.body;
     
     if (!amount) {
       return res.status(400).json({ success: false, message: 'Amount is required' });
     }
 
     const options = {
-      amount: amount * 100, // Razorpay works in paise
+      amount: Math.round(amount * 100), // Razorpay works in paise
       currency: 'INR',
       receipt: `receipt_${Date.now()}`,
+      notes: notes || {},
     };
 
     const order = await razorpayInstance.orders.create(options);
@@ -100,10 +102,59 @@ export const paymentWebhook = async (req, res) => {
           orderId: payment.order_id,
           amount: payment.amount,
         });
-        await Ordermodel.findOneAndUpdate(
+
+        // 1. Check if order exists in DB
+        const existingOrder = await Ordermodel.findOneAndUpdate(
           { razorpay_order_id: payment.order_id },
-          { paymentStatus: 'PAID' }
+          { 
+            paymentStatus: 'PAID',
+            razorpay_payment_id: payment.id
+          },
+          { new: true }
         );
+
+        // 2. If order document does not exist (e.g. mobile UPI tab closed before options.handler ran)
+        if (!existingOrder) {
+          console.log(`Order not found for razorpay_order_id ${payment.order_id}. Auto-creating from payment data...`);
+          const notes = payment.notes || {};
+          const customerName = notes.name || (payment.email ? payment.email.split('@')[0] : 'Customer');
+          const email = notes.email || payment.email || 'customer@example.com';
+          const phone = notes.phone || (payment.contact ? payment.contact.replace('+91', '').trim() : '0000000000');
+          const address = notes.address || 'Address pending confirmation (UPI Payment)';
+          const city = notes.city || 'Tamil Nadu';
+          const pin = notes.pin || '600000';
+          const country = notes.country || 'India';
+          const totalprice = payment.amount ? payment.amount / 100 : 0;
+
+          const defaultProduct = await productmodel.findOne({ name: /Lice/i });
+          const orderItems = defaultProduct ? [{
+            name: defaultProduct.name,
+            price: defaultProduct.price,
+            quantity: 1,
+            size: '200',
+            color: 'white',
+            product: defaultProduct._id
+          }] : [];
+
+          const newOrder = await Ordermodel.create({
+            name: customerName,
+            address,
+            email,
+            city,
+            country,
+            phone,
+            pin,
+            orderItems,
+            shippingCharge: totalprice >= 789 ? 90 : 50,
+            totalprice,
+            orderStatus: 'Processing',
+            razorpay_order_id: payment.order_id,
+            razorpay_payment_id: payment.id,
+            paymentStatus: 'PAID',
+            createdAt: new Date(payment.created_at ? payment.created_at * 1000 : Date.now())
+          });
+          console.log(`Auto-created order ID ${newOrder._id} for captured payment ${payment.id}`);
+        }
         break;
       }
       case 'payment.failed': {

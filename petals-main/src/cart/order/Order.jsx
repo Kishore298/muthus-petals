@@ -26,6 +26,7 @@ const ShippingPage = () => {
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
   const [cartData, setCartData] = useState([]);
+  const [orderSuccess, setOrderSuccess] = useState(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("cart");
@@ -89,6 +90,15 @@ const ShippingPage = () => {
       // 2. Create Order in Backend
       const orderDataResponse = await axios.post(`${BASE_URL}/api/v1/payment/create-payment-order`, {
         amount: total,
+        notes: {
+          name: name ? name.slice(0, 40) : '',
+          email: email ? email.slice(0, 40) : '',
+          phone: phone ? phone.slice(0, 15) : '',
+          address: address ? address.slice(0, 100) : '',
+          city: city ? city.slice(0, 30) : '',
+          pin: pin ? pin.slice(0, 10) : '',
+          country: country ? country.slice(0, 30) : ''
+        }
       });
 
       if (!orderDataResponse.data.success) {
@@ -156,12 +166,19 @@ const ShippingPage = () => {
               msg += `*Total Paid: Rs. ${total}*\n\n`;
               msg += `*Location Map:* https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address + " " + city + " " + pin)}`;
 
+              const waUrl = `https://api.whatsapp.com/send?phone=916381181527&text=${encodeURIComponent(msg)}`;
+
+              setOrderSuccess({
+                paymentId: response.razorpay_payment_id,
+                waUrl: waUrl,
+              });
+
               localStorage.removeItem("cart");
               setCartData([]);
               setName(""); setAddress(""); setEmail("");
               setCity(""); setCountry(""); setPhone(""); setPin("");
 
-              window.location.href = `https://api.whatsapp.com/send?phone=6381181527&text=${encodeURIComponent(msg)}`;
+              window.location.href = waUrl;
             }
           } catch (err) {
             console.error("Verification error:", err);
@@ -193,6 +210,58 @@ const ShippingPage = () => {
       toast.error(msg);
     }
   };
+
+  if (orderSuccess) {
+    return (
+      <div className="sp-page">
+        <div className="sp-wrap" style={{ maxWidth: '580px', textAlign: 'center', padding: '50px 24px', background: '#ffffff', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.06)', margin: '40px auto' }}>
+          <div style={{ fontSize: '56px', marginBottom: '16px' }}>🎉</div>
+          <h1 className="sp-title" style={{ fontSize: '26px', marginBottom: '8px', color: '#111827' }}>Order Placed Successfully!</h1>
+          <p className="sp-sub" style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px' }}>
+            Payment ID: <strong style={{ color: '#111827', fontFamily: 'monospace' }}>{orderSuccess.paymentId}</strong>
+          </p>
+          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '14px', padding: '24px 20px', marginBottom: '28px', textAlign: 'center' }}>
+            <p style={{ color: '#166534', fontWeight: 700, fontSize: '16px', marginBottom: '8px' }}>
+              Confirm your order on WhatsApp
+            </p>
+            <p style={{ color: '#15803d', fontSize: '13.5px', marginBottom: '18px', lineHeight: 1.5 }}>
+              Your order is recorded! Please tap the button below to send your order details directly to our WhatsApp support number so we can process your dispatch quickly.
+            </p>
+            <a
+              href={orderSuccess.waUrl}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: '#25D366',
+                color: '#ffffff',
+                textDecoration: 'none',
+                padding: '12px 26px',
+                borderRadius: '8px',
+                fontWeight: 600,
+                fontSize: '15px',
+                boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)'
+              }}
+            >
+              💬 Send Order on WhatsApp
+            </a>
+          </div>
+          <a
+            href="/"
+            style={{
+              display: 'inline-block',
+              color: '#d875db',
+              textDecoration: 'none',
+              fontWeight: 600,
+              fontSize: '14px'
+            }}
+          >
+            ← Return to Home
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="sp-page">

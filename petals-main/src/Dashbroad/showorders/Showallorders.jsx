@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Eye, EyeOff, Calendar, X } from 'lucide-react';
 import './showorders.css';
 import AdminNavbar from '../AdminNavbar';
 import logoImg from '../../componets/images/logo.jpg';
@@ -20,10 +21,13 @@ const STATUS_BADGE = (s = 'Processing') => {
 export const Showallorders = () => {
   const [orders, setOrders] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [showRevenue, setShowRevenue] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   
   // Modal state
   const [deletingId, setDeletingId] = useState(null);
@@ -428,15 +432,61 @@ export const Showallorders = () => {
     doc.save(`Receipt_${order._id}.pdf`);
   };
 
+  const handleDatePreset = (preset) => {
+    const now = new Date();
+    if (preset === 'today') {
+      const todayStr = now.toISOString().split('T')[0];
+      setStartDate(todayStr);
+      setEndDate(todayStr);
+    } else if (preset === 'yesterday') {
+      const yest = new Date();
+      yest.setDate(yest.getDate() - 1);
+      const yestStr = yest.toISOString().split('T')[0];
+      setStartDate(yestStr);
+      setEndDate(yestStr);
+    } else if (preset === '7days') {
+      const d7 = new Date();
+      d7.setDate(d7.getDate() - 7);
+      setStartDate(d7.toISOString().split('T')[0]);
+      setEndDate(now.toISOString().split('T')[0]);
+    } else if (preset === '30days') {
+      const d30 = new Date();
+      d30.setDate(d30.getDate() - 30);
+      setStartDate(d30.toISOString().split('T')[0]);
+      setEndDate(now.toISOString().split('T')[0]);
+    } else if (preset === 'clear') {
+      setStartDate("");
+      setEndDate("");
+    }
+  };
+
   const filtered = orders.filter(order => {
-    const q = searchQuery.toLowerCase();
-    const matchSearch =
+    const q = searchQuery.toLowerCase().trim();
+    const matchSearch = !q || (
       (order.name && order.name.toLowerCase().includes(q)) ||
       (order.email && order.email.toLowerCase().includes(q)) ||
-      (order.phone && order.phone.toLowerCase().includes(q)) ||
-      (order._id && order._id.toLowerCase().includes(q));
+      (order.phone && String(order.phone).toLowerCase().includes(q)) ||
+      (order._id && order._id.toLowerCase().includes(q)) ||
+      (order.razorpay_payment_id && order.razorpay_payment_id.toLowerCase().includes(q)) ||
+      (order.razorpay_order_id && order.razorpay_order_id.toLowerCase().includes(q))
+    );
     const matchStatus = statusFilter === "All" || order.orderStatus === statusFilter;
-    return matchSearch && matchStatus;
+
+    let matchDate = true;
+    if (startDate) {
+      const orderDate = new Date(order.createdAt);
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      if (orderDate < start) matchDate = false;
+    }
+    if (endDate) {
+      const orderDate = new Date(order.createdAt);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      if (orderDate > end) matchDate = false;
+    }
+
+    return matchSearch && matchStatus && matchDate;
   });
 
   const totalOrders     = orders.length;
@@ -464,16 +514,39 @@ export const Showallorders = () => {
     <div className="so-page">
       <div style={{ maxWidth: '850px', margin: '0 auto', width: '100%' }}>
       <div className="so-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>📋 Order Management</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+          <h1>📋 Order Management</h1>
+          <button
+            type="button"
+            className="so-revenue-toggle"
+            onClick={() => setShowRevenue(!showRevenue)}
+            title={showRevenue ? "Hide revenue card" : "Show revenue card"}
+          >
+            {showRevenue ? <EyeOff size={15} /> : <Eye size={15} />}
+            <span>{showRevenue ? "Hide Revenue" : "Show Revenue"}</span>
+          </button>
+        </div>
         <button onClick={() => setShowBulkModal(true)} style={{ background: '#d875db', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>Bulk Print A4</button>
       </div>
 
       {/* Stats */}
       <div className="so-stats">
-        <div className="so-stat">
-          <p className="so-stat-label">Total Revenue</p>
-          <p className="so-stat-value purple">₹{totalRevenue.toLocaleString('en-IN')}</p>
-        </div>
+        {showRevenue && (
+          <div className="so-stat so-revenue-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <p className="so-stat-label" style={{ margin: 0 }}>Total Revenue</p>
+              <button
+                type="button"
+                onClick={() => setShowRevenue(false)}
+                className="so-eye-icon-btn"
+                title="Hide revenue card"
+              >
+                <EyeOff size={14} />
+              </button>
+            </div>
+            <p className="so-stat-value purple">₹{totalRevenue.toLocaleString('en-IN')}</p>
+          </div>
+        )}
         <div className="so-stat">
           <p className="so-stat-label">Total Orders</p>
           <p className="so-stat-value">{totalOrders}</p>
@@ -492,7 +565,7 @@ export const Showallorders = () => {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Search & Status Filters */}
       <div className="so-filters">
         <input
           type="text"
@@ -508,6 +581,79 @@ export const Showallorders = () => {
             onClick={() => setStatusFilter(s)}
           >{s}</button>
         ))}
+      </div>
+
+      {/* Date Filter Bar */}
+      <div className="so-date-filter-bar">
+        <div className="so-date-group">
+          <Calendar size={15} className="so-calendar-icon" />
+          <span className="so-date-label">Date Filter:</span>
+          <div className="so-date-inputs">
+            <input
+              type="date"
+              className="so-date-input"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              title="From date"
+            />
+            <span className="so-date-sep">to</span>
+            <input
+              type="date"
+              className="so-date-input"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              title="To date"
+            />
+          </div>
+        </div>
+
+        <div className="so-date-presets">
+          <button 
+            type="button" 
+            className={`so-date-preset-btn ${!startDate && !endDate ? 'active' : ''}`}
+            onClick={() => handleDatePreset('clear')}
+          >
+            All Time
+          </button>
+          <button 
+            type="button" 
+            className="so-date-preset-btn"
+            onClick={() => handleDatePreset('today')}
+          >
+            Today
+          </button>
+          <button 
+            type="button" 
+            className="so-date-preset-btn"
+            onClick={() => handleDatePreset('yesterday')}
+          >
+            Yesterday
+          </button>
+          <button 
+            type="button" 
+            className="so-date-preset-btn"
+            onClick={() => handleDatePreset('7days')}
+          >
+            Last 7 Days
+          </button>
+          <button 
+            type="button" 
+            className="so-date-preset-btn"
+            onClick={() => handleDatePreset('30days')}
+          >
+            Last 30 Days
+          </button>
+          {(startDate || endDate) && (
+            <button
+              type="button"
+              className="so-date-clear-btn"
+              onClick={() => handleDatePreset('clear')}
+              title="Clear date filter"
+            >
+              <X size={14} /> Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Orders */}
