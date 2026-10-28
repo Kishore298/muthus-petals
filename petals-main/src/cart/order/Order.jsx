@@ -87,18 +87,35 @@ const ShippingPage = () => {
       const keyData = await axios.get(`${BASE_URL}/api/v1/payment/get-key`);
       const key = keyData.data.key;
 
-      // 2. Create Order in Backend
+      // 2. Prepare notes with customer & product details (within Razorpay limit of 15 keys & 256 chars/val)
+      const notesPayload = {
+        name: name ? name.slice(0, 40) : '',
+        email: email ? email.slice(0, 40) : '',
+        phone: phone ? phone.slice(0, 15) : '',
+        address: address ? address.slice(0, 100) : '',
+        city: city ? city.slice(0, 30) : '',
+        pin: pin ? pin.slice(0, 10) : '',
+        country: country ? country.slice(0, 30) : '',
+        shipping_charge: String(shippingCharge || 0),
+        item_count: String(cartData.length),
+        items_summary: cartData.map(i => `${i.quantity}x ${i.name}`).join('; ').slice(0, 250),
+      };
+
+      // Store individual items (up to 5 items to safely remain under the 15-key limit)
+      cartData.slice(0, 5).forEach((item, idx) => {
+        notesPayload[`item_${idx + 1}`] = JSON.stringify({
+          id: item._id,
+          name: item.name ? item.name.slice(0, 35) : '',
+          price: item.price,
+          qty: item.quantity,
+          size: item.size || '',
+          color: item.color || ''
+        }).slice(0, 255);
+      });
+
       const orderDataResponse = await axios.post(`${BASE_URL}/api/v1/payment/create-payment-order`, {
         amount: total,
-        notes: {
-          name: name ? name.slice(0, 40) : '',
-          email: email ? email.slice(0, 40) : '',
-          phone: phone ? phone.slice(0, 15) : '',
-          address: address ? address.slice(0, 100) : '',
-          city: city ? city.slice(0, 30) : '',
-          pin: pin ? pin.slice(0, 10) : '',
-          country: country ? country.slice(0, 30) : ''
-        }
+        notes: notesPayload
       });
 
       if (!orderDataResponse.data.success) {
@@ -116,6 +133,7 @@ const ShippingPage = () => {
         name: "Muthu's Petals",
         description: "Order Payment",
         order_id: order.id,
+        notes: notesPayload,
         handler: async function (response) {
           try {
             // 4. Verify Payment

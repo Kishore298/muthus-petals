@@ -126,15 +126,48 @@ export const paymentWebhook = async (req, res) => {
           const country = notes.country || 'India';
           const totalprice = payment.amount ? payment.amount / 100 : 0;
 
-          const defaultProduct = await productmodel.findOne({ name: /Lice/i });
-          const orderItems = defaultProduct ? [{
-            name: defaultProduct.name,
-            price: defaultProduct.price,
-            quantity: 1,
-            size: '200',
-            color: 'white',
-            product: defaultProduct._id
-          }] : [];
+          // Parse products from notes
+          let orderItems = [];
+          const itemCount = parseInt(notes.item_count || '0', 10);
+          if (itemCount > 0) {
+            for (let idx = 1; idx <= itemCount; idx++) {
+              const rawItem = notes[`item_${idx}`];
+              if (rawItem) {
+                try {
+                  const parsed = JSON.parse(rawItem);
+                  orderItems.push({
+                    name: parsed.name,
+                    price: Number(parsed.price),
+                    quantity: Number(parsed.qty || parsed.quantity || 1),
+                    size: parsed.size || '',
+                    color: parsed.color || '',
+                    product: parsed.id
+                  });
+                } catch (e) {
+                  console.error('Error parsing note item:', e);
+                }
+              }
+            }
+          }
+
+          // Fallback if no items in notes
+          if (orderItems.length === 0) {
+            const defaultProduct = await productmodel.findOne({ name: /Lice/i });
+            if (defaultProduct) {
+              orderItems = [{
+                name: defaultProduct.name,
+                price: defaultProduct.price,
+                quantity: 1,
+                size: '200',
+                color: 'white',
+                product: defaultProduct._id
+              }];
+            }
+          }
+
+          const shippingCharge = notes.shipping_charge !== undefined
+            ? Number(notes.shipping_charge)
+            : (totalprice >= 789 ? 90 : 50);
 
           const newOrder = await Ordermodel.create({
             name: customerName,
@@ -145,7 +178,7 @@ export const paymentWebhook = async (req, res) => {
             phone,
             pin,
             orderItems,
-            shippingCharge: totalprice >= 789 ? 90 : 50,
+            shippingCharge,
             totalprice,
             orderStatus: 'Processing',
             razorpay_order_id: payment.order_id,
